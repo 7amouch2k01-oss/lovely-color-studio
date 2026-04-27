@@ -180,8 +180,8 @@ function DashboardPage() {
                 <Menu />
               </Button>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold uppercase text-muted-foreground">Styly admin</p>
-                <h1 className="truncate text-xl font-bold tracking-tight sm:text-2xl">{sectionTitle}</h1>
+                <p className="text-xs font-normal uppercase text-muted-foreground">Styly admin</p>
+                <h1 className="truncate text-xl font-medium tracking-tight sm:text-2xl">{sectionTitle}</h1>
               </div>
               <div className="hidden min-w-72 items-center rounded-full border bg-card px-3 py-2 shadow-sm md:flex">
                 <Search className="mr-2 size-4 text-muted-foreground" />
@@ -190,7 +190,7 @@ function DashboardPage() {
               <Button variant="outline" size="icon" aria-label="Notifications">
                 <Bell />
               </Button>
-              <div className="flex size-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20">
+              <div className="flex size-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20">
                 S
               </div>
             </div>
@@ -224,13 +224,13 @@ function DashboardSidebar({
           <span className="flex size-11 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground shadow-lg shadow-primary/20">
             <Sparkles className="size-5" />
           </span>
-          <span className="text-2xl font-bold tracking-tight">styly</span>
+          <span className="text-2xl font-medium tracking-tight">styly</span>
         </Link>
         <X className="size-5 text-muted-foreground lg:hidden" />
       </div>
 
       <div className="mb-5 rounded-2xl bg-brand-soft p-4 text-brand-soft-foreground">
-        <p className="text-xs font-semibold uppercase">Fashion discovery</p>
+        <p className="text-xs font-normal uppercase">Fashion discovery</p>
         <p className="mt-2 text-sm font-medium">Manage users, recommendations, and community growth.</p>
       </div>
 
@@ -242,7 +242,7 @@ function DashboardSidebar({
             <button
               key={item.key}
               className={cn(
-                "flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold transition",
+                "flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-normal transition",
                 isActive
                   ? "bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground shadow-lg shadow-primary/20"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
@@ -258,7 +258,7 @@ function DashboardSidebar({
       </nav>
 
       <div className="mt-auto rounded-2xl bg-foreground p-4 text-background">
-        <p className="text-sm font-bold">Ready to publish?</p>
+        <p className="text-sm font-medium">Ready to publish?</p>
         <p className="mt-1 text-xs opacity-70">Demo data is prepared for investor and team reviews.</p>
       </div>
     </div>
@@ -272,7 +272,7 @@ function OverviewSection() {
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div>
             <Badge className="rounded-full bg-brand-soft text-brand-soft-foreground hover:bg-brand-soft">Styly operations</Badge>
-            <h2 className="mt-5 max-w-2xl text-3xl font-extrabold tracking-tight sm:text-5xl">
+            <h2 className="mt-5 max-w-2xl text-3xl font-normal tracking-tight sm:text-5xl">
               Welcome back, <span className="text-primary">Styly team</span>
             </h2>
             <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
@@ -282,8 +282,8 @@ function OverviewSection() {
           <div className="rounded-3xl border bg-card p-5 shadow-xl shadow-primary/10">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-muted-foreground">Today’s momentum</p>
-                <p className="text-3xl font-extrabold">+24.7%</p>
+                <p className="text-sm font-normal text-muted-foreground">Today’s momentum</p>
+                <p className="text-3xl font-normal">+24.7%</p>
               </div>
               <TrendingUp className="size-10 text-primary" />
             </div>
@@ -310,8 +310,8 @@ function OverviewSection() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">{kpi.label}</p>
-                    <p className="mt-3 text-3xl font-extrabold">{kpi.value}</p>
-                    <p className="mt-2 text-sm font-bold text-primary">{kpi.trend} this month</p>
+                    <p className="mt-3 text-3xl font-normal">{kpi.value}</p>
+                    <p className="mt-2 text-sm font-medium text-primary">{kpi.trend} this month</p>
                   </div>
                   <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-soft text-primary">
                     <Icon className="size-5" />
@@ -361,7 +361,7 @@ function OverviewSection() {
                     <Icon className="size-4" />
                   </span>
                   <div>
-                    <p className="text-sm font-semibold">{activity.title}</p>
+                    <p className="text-sm font-normal">{activity.title}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{activity.time}</p>
                   </div>
                 </div>
@@ -395,12 +395,12 @@ function UsersSection() {
             <table className="w-full min-w-[720px] text-left text-sm">
               <thead className="text-xs uppercase text-muted-foreground">
                 <tr className="border-b">
-                  <th className="py-3 font-semibold">Name</th>
-                  <th className="py-3 font-semibold">Location</th>
-                  <th className="py-3 font-semibold">Style preference</th>
-                  <th className="py-3 font-semibold">Status</th>
-                  <th className="py-3 font-semibold">Last active</th>
-                  <th className="py-3 font-semibold">Actions</th>
+                  <th className="py-3 font-normal">Name</th>
+                  <th className="py-3 font-normal">Location</th>
+                  <th className="py-3 font-normal">Style preference</th>
+                  <th className="py-3 font-normal">Status</th>
+                  <th className="py-3 font-normal">Last active</th>
+                  <th className="py-3 font-normal">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -408,10 +408,10 @@ function UsersSection() {
                   <tr key={user.name} className="border-b last:border-0">
                     <td className="py-4">
                       <div className="flex items-center gap-3">
-                        <span className="flex size-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] font-bold text-primary-foreground">
+                        <span className="flex size-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] font-medium text-primary-foreground">
                           {user.name.charAt(0)}
                         </span>
-                        <span className="font-bold">{user.name}</span>
+                        <span className="font-medium">{user.name}</span>
                       </div>
                     </td>
                     <td className="py-4 text-muted-foreground">{user.location}, Tunisia</td>
@@ -453,9 +453,9 @@ function OutfitsSection() {
                 <span className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground">
                   <Icon className="size-6" />
                 </span>
-                <h3 className="text-lg font-extrabold">{card.title}</h3>
+                <h3 className="text-lg font-normal">{card.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">{card.text}</p>
-                <div className="mt-5 flex items-center justify-between rounded-2xl bg-brand-soft px-3 py-2 text-sm font-bold text-brand-soft-foreground">
+                <div className="mt-5 flex items-center justify-between rounded-2xl bg-brand-soft px-3 py-2 text-sm font-medium text-brand-soft-foreground">
                   <span>Match score</span>
                   <span>{card.score}</span>
                 </div>
@@ -471,7 +471,7 @@ function OutfitsSection() {
         <CardContent className="grid gap-3 md:grid-cols-3">
           {["Campus smart casual", "Weekend La Marsa", "Workday neutral layers"].map((look, index) => (
             <div key={look} className="rounded-2xl border bg-card p-4">
-              <p className="font-bold">{look}</p>
+              <p className="font-medium">{look}</p>
               <p className="mt-2 text-sm text-muted-foreground">{820 + index * 215} users matched today</p>
               <div className="mt-4 h-2 rounded-full bg-muted">
                 <div
@@ -505,13 +505,13 @@ function CommunitySection() {
                   <Heart className="size-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-4xl font-extrabold text-primary">{post.likes}</p>
-                  <p className="text-sm font-semibold text-muted-foreground">likes</p>
+                  <p className="text-4xl font-normal text-primary">{post.likes}</p>
+                  <p className="text-sm font-normal text-muted-foreground">likes</p>
                 </div>
               </div>
             </div>
             <CardContent className="p-5">
-              <h3 className="text-lg font-extrabold">{post.author}</h3>
+              <h3 className="text-lg font-normal">{post.author}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{post.city}, Tunisia</p>
               <div className="mt-5 flex gap-2">
                 <Button variant="outline" size="sm"><Eye />Review</Button>
@@ -537,8 +537,8 @@ function AnalyticsSection() {
         {analytics.map((item) => (
           <Card key={item.label} className="rounded-3xl shadow-sm">
             <CardContent className="p-5">
-              <p className="text-sm font-semibold text-muted-foreground">{item.label}</p>
-              <p className="mt-3 text-3xl font-extrabold">{item.value}</p>
+              <p className="text-sm font-normal text-muted-foreground">{item.label}</p>
+              <p className="mt-3 text-3xl font-normal">{item.value}</p>
               <p className="mt-2 text-sm font-medium text-primary">{item.detail}</p>
             </CardContent>
           </Card>
@@ -597,7 +597,7 @@ function SettingsSection() {
             ["Android link", "Google Play campaign link"],
           ].map(([label, value]) => (
             <label key={label} className="space-y-2">
-              <span className="text-sm font-bold">{label}</span>
+              <span className="text-sm font-medium">{label}</span>
               <Input value={value} readOnly className="h-12 rounded-2xl bg-muted/60" />
             </label>
           ))}
@@ -616,7 +616,7 @@ function SectionIntro({ eyebrow, title, text }: { eyebrow: string; title: string
   return (
     <section className="rounded-3xl bg-brand-soft p-6">
       <Badge className="rounded-full bg-card text-primary hover:bg-card">{eyebrow}</Badge>
-      <h2 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h2>
+      <h2 className="mt-4 text-3xl font-normal tracking-tight sm:text-4xl">{title}</h2>
       <p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{text}</p>
     </section>
   );
