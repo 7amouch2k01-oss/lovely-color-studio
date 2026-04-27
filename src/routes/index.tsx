@@ -38,7 +38,7 @@ function Index() {
             <span className="flex size-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground shadow-lg shadow-primary/20">
               <Sparkles className="size-5" />
             </span>
-            <span className="text-2xl font-extrabold tracking-tight">styly</span>
+            <span className="text-2xl font-normal tracking-tight">styly</span>
           </Link>
           <Button asChild className="rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] px-5 text-primary-foreground shadow-lg shadow-primary/20">
             <Link to="/dashboard">
@@ -50,11 +50,11 @@ function Index() {
 
         <div className="mx-auto grid min-h-[calc(100vh-7rem)] max-w-6xl gap-10 py-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-4 py-2 text-sm font-bold text-brand-soft-foreground">
+            <div className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-4 py-2 text-sm font-medium text-brand-soft-foreground">
               <span className="size-2 rounded-full bg-primary" />
               Styly admin workspace
             </div>
-            <h1 className="mt-6 max-w-3xl text-5xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
+            <h1 className="mt-6 max-w-3xl text-5xl font-normal tracking-tight sm:text-6xl lg:text-7xl">
               Your fashion app <span className="text-primary">control center</span>
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
@@ -81,8 +81,8 @@ function Index() {
               <div className="rounded-[1.5rem] bg-brand-soft p-5">
                 <div className="mb-6 flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold text-primary">Today</p>
-                    <p className="text-3xl font-extrabold">Styly growth</p>
+                    <p className="text-sm font-medium text-primary">Today</p>
+                    <p className="text-3xl font-normal">Styly growth</p>
                   </div>
                   <ShieldCheck className="size-10 text-primary" />
                 </div>
@@ -96,9 +96,9 @@ function Index() {
                             <span className="flex size-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground">
                               <Icon className="size-5" />
                             </span>
-                            <span className="font-bold">{item.label}</span>
+                            <span className="font-medium">{item.label}</span>
                           </div>
-                          <span className="text-2xl font-extrabold text-primary">{item.value}</span>
+                          <span className="text-2xl font-normal text-primary">{item.value}</span>
                         </CardContent>
                       </Card>
                     );
