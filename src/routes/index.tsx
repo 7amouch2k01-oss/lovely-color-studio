@@ -41,8 +41,8 @@ function Index() {
             <span className="text-2xl font-normal tracking-tight">styly</span>
           </Link>
           <Button asChild className="rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] px-5 text-primary-foreground shadow-lg shadow-primary/20">
-            <Link to="/dashboard">
-              Open Dashboard
+            <Link to="/auth">
+              Sign in
               <ArrowRight />
             </Link>
           </Button>
@@ -62,8 +62,8 @@ function Index() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg" className="rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] px-7 text-primary-foreground shadow-lg shadow-primary/20">
-                <Link to="/dashboard">
-                  Enter dashboard
+                <Link to="/auth">
+                  Start your account
                   <ArrowRight />
                 </Link>
               </Button>
