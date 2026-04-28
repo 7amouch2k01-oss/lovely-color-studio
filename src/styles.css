@@ -111,6 +111,42 @@
   --warning-foreground: oklch(0.21 0 0);
 }
 
+@keyframes styly-sidebar-flow {
+  0%,
+  100% {
+    background-position: 0% 0%, 100% 0%, 50% 50%;
+  }
+
+  50% {
+    background-position: 100% 100%, 0% 100%, 50% 50%;
+  }
+}
+
+.styly-animated-sidebar {
+  --sidebar: oklch(0.12 0.015 250);
+  --sidebar-foreground: oklch(0.98 0.004 250);
+  --sidebar-accent: oklch(1 0 0 / 12%);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(1 0 0 / 14%);
+  background:
+    radial-gradient(circle at 15% 10%, color-mix(in oklab, var(--primary) 34%, transparent), transparent 26%),
+    radial-gradient(circle at 85% 88%, color-mix(in oklab, var(--primary-glow) 24%, transparent), transparent 30%),
+    linear-gradient(145deg, oklch(0.06 0.008 250), oklch(0.14 0.018 250) 52%, oklch(0.035 0.004 250));
+  background-size: 180% 180%, 160% 160%, 100% 100%;
+  animation: styly-sidebar-flow 8s ease-in-out infinite;
+}
+
+.styly-animated-sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(oklch(1 0 0 / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(1 0 0 / 4%) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, transparent, black 14%, black 82%, transparent);
+}
+
 .dark {
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
