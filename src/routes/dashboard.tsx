@@ -145,7 +145,7 @@ function DashboardPage() {
       <div className="flex min-h-screen">
         <aside
           className={cn(
-            "fixed inset-y-0 left-0 z-40 w-[var(--sidebar-width)] border-r bg-sidebar px-4 py-5 shadow-xl transition-transform duration-300 lg:sticky lg:translate-x-0",
+            "styly-animated-sidebar fixed inset-y-0 left-0 z-40 w-[var(--sidebar-width)] overflow-hidden border-r border-sidebar-border px-4 py-5 shadow-xl transition-transform duration-300 lg:sticky lg:translate-x-0",
             sidebarOpen ? "translate-x-0" : "-translate-x-full",
           )}
           style={{ "--sidebar-width": "18rem" } as React.CSSProperties}
@@ -218,18 +218,18 @@ function DashboardSidebar({
   onSelect: (section: SectionKey) => void;
 }) {
   return (
-    <div className="flex h-full flex-col">
+    <div className="relative z-10 flex h-full flex-col text-sidebar-foreground">
       <div className="mb-8 flex items-center justify-between gap-3">
         <Link to="/" className="flex items-center gap-3">
           <span className="flex size-11 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground shadow-lg shadow-primary/20">
             <Sparkles className="size-5" />
           </span>
-          <span className="text-2xl font-medium tracking-tight">styly</span>
+          <span className="text-2xl font-medium tracking-tight text-sidebar-foreground">styly</span>
         </Link>
-        <X className="size-5 text-muted-foreground lg:hidden" />
+        <X className="size-5 text-sidebar-foreground/70 lg:hidden" />
       </div>
 
-      <div className="mb-5 rounded-2xl bg-brand-soft p-4 text-brand-soft-foreground">
+      <div className="mb-5 rounded-2xl border border-sidebar-border bg-sidebar-accent/70 p-4 text-sidebar-accent-foreground shadow-lg shadow-primary/10 backdrop-blur-sm">
         <p className="text-xs font-normal uppercase">Fashion discovery</p>
         <p className="mt-2 text-sm font-medium">Manage users, recommendations, and community growth.</p>
       </div>
@@ -245,7 +245,7 @@ function DashboardSidebar({
                 "flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-normal transition",
                 isActive
                   ? "bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground shadow-lg shadow-primary/20"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
               )}
               onClick={() => onSelect(item.key)}
             >
@@ -257,7 +257,7 @@ function DashboardSidebar({
         })}
       </nav>
 
-      <div className="mt-auto rounded-2xl bg-foreground p-4 text-background">
+      <div className="mt-auto rounded-2xl border border-sidebar-border bg-sidebar-accent/70 p-4 text-sidebar-accent-foreground shadow-lg shadow-primary/10 backdrop-blur-sm">
         <p className="text-sm font-medium">Ready to publish?</p>
         <p className="mt-1 text-xs opacity-70">Demo data is prepared for investor and team reviews.</p>
       </div>
