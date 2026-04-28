@@ -9,12 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StylyTeamDashboardRouteImport } from './routes/styly-team-dashboard'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as BrandDashboardRouteImport } from './routes/brand-dashboard'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 
+const StylyTeamDashboardRoute = StylyTeamDashboardRouteImport.update({
+  id: '/styly-team-dashboard',
+  path: '/styly-team-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrandDashboardRoute = BrandDashboardRouteImport.update({
+  id: '/brand-dashboard',
+  path: '/brand-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,37 +43,86 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/brand-dashboard': typeof BrandDashboardRoute
   '/dashboard': typeof DashboardRoute
+  '/styly-team-dashboard': typeof StylyTeamDashboardRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/brand-dashboard': typeof BrandDashboardRoute
   '/dashboard': typeof DashboardRoute
+  '/styly-team-dashboard': typeof StylyTeamDashboardRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/brand-dashboard': typeof BrandDashboardRoute
   '/dashboard': typeof DashboardRoute
+  '/styly-team-dashboard': typeof StylyTeamDashboardRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/brand-dashboard'
+    | '/dashboard'
+    | '/styly-team-dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard'
-  id: '__root__' | '/' | '/dashboard'
+  to:
+    | '/'
+    | '/auth'
+    | '/brand-dashboard'
+    | '/dashboard'
+    | '/styly-team-dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/brand-dashboard'
+    | '/dashboard'
+    | '/styly-team-dashboard'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  BrandDashboardRoute: typeof BrandDashboardRoute
   DashboardRoute: typeof DashboardRoute
+  StylyTeamDashboardRoute: typeof StylyTeamDashboardRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/styly-team-dashboard': {
+      id: '/styly-team-dashboard'
+      path: '/styly-team-dashboard'
+      fullPath: '/styly-team-dashboard'
+      preLoaderRoute: typeof StylyTeamDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brand-dashboard': {
+      id: '/brand-dashboard'
+      path: '/brand-dashboard'
+      fullPath: '/brand-dashboard'
+      preLoaderRoute: typeof BrandDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,7 +137,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  BrandDashboardRoute: BrandDashboardRoute,
   DashboardRoute: DashboardRoute,
+  StylyTeamDashboardRoute: StylyTeamDashboardRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
