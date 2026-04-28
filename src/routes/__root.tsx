@@ -29,14 +29,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "styly tn" },
+      { name: "description", content: "Radiant Palette is a web application for creating and managing color palettes." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "styly tn" },
+      { property: "og:description", content: "Radiant Palette is a web application for creating and managing color palettes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "styly tn" },
+      { name: "twitter:description", content: "Radiant Palette is a web application for creating and managing color palettes." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c90a7e0c-d3fc-4109-954a-9e3f4a30fe34/id-preview-735fd78c--565c8e63-5508-47fa-b263-f1e990568d87.lovable.app-1777394549442.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c90a7e0c-d3fc-4109-954a-9e3f4a30fe34/id-preview-735fd78c--565c8e63-5508-47fa-b263-f1e990568d87.lovable.app-1777394549442.png" },
     ],
     links: [
       {
