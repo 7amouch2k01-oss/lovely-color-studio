@@ -1,0 +1,119 @@
+import { supabase } from "@/integrations/supabase/client";
+
+export type AppRole = "brand" | "styly_team";
+
+export type SignupProfile = {
+  role: AppRole;
+  fullName: string;
+  brandName?: string;
+  website?: string;
+  industry?: string;
+  description?: string;
+  department?: string;
+  position?: string;
+  phone?: string;
+};
+
+const pendingSignupKey = "styly_pending_signup_profile";
+
+export function getDashboardPath(role: AppRole) {
+  return role === "brand" ? "/brand-dashboard" : "/styly-team-dashboard";
+}
+
+export function savePendingSignup(profile: SignupProfile & { email: string }) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(pendingSignupKey, JSON.stringify(profile));
+}
+
+export async function getCurrentRole(): Promise<AppRole | null> {
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return null;
+
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userData.user.id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data?.role ?? null;
+}
+
+export async function upsertRoleProfile(userId: string, profile: SignupProfile) {
+  const { data: existingRole, error: roleReadError } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (roleReadError) throw roleReadError;
+
+  if (!existingRole) {
+    const { error: roleError } = await supabase.from("user_roles").insert({
+      user_id: userId,
+      role: profile.role,
+    });
+    if (roleError) throw roleError;
+  }
+
+  if (profile.role === "brand") {
+    const { error } = await supabase.from("brand_profiles").upsert(
+      {
+        user_id: userId,
+        brand_name: profile.brandName?.trim() || profile.fullName.trim(),
+        contact_name: profile.fullName.trim(),
+        website: profile.website?.trim() || null,
+        industry: profile.industry?.trim() || null,
+        description: profile.description?.trim() || null,
+      },
+      { onConflict: "user_id" },
+    );
+    if (error) throw error;
+    return;
+  }
+
+  const { error } = await supabase.from("team_member_profiles").upsert(
+    {
+      user_id: userId,
+      full_name: profile.fullName.trim(),
+      department: profile.department?.trim() || "Operations",
+      position: profile.position?.trim() || "Styly team member",
+      phone: profile.phone?.trim() || null,
+    },
+    { onConflict: "user_id" },
+  );
+  if (error) throw error;
+}
+
+export async function completePendingSignup(userId: string, email?: string | null) {
+  if (typeof window === "undefined") return null;
+
+  const raw = window.localStorage.getItem(pendingSignupKey);
+  if (!raw) return null;
+
+  const pending = JSON.parse(raw) as SignupProfile & { email: string };
+  if (email && pending.email.toLowerCase() !== email.toLowerCase()) return null;
+
+  await upsertRoleProfile(userId, pending);
+  window.localStorage.removeItem(pendingSignupKey);
+  return pending.role;
+}
+
+export async function ensureProfileFromUserMetadata(userId: string, metadata: Record<string, unknown>) {
+  const role = metadata.role === "brand" || metadata.role === "styly_team" ? metadata.role : null;
+  if (!role) return null;
+
+  await upsertRoleProfile(userId, {
+    role,
+    fullName: String(metadata.fullName ?? metadata.contactName ?? "Styly user"),
+    brandName: typeof metadata.brandName === "string" ? metadata.brandName : undefined,
+    website: typeof metadata.website === "string" ? metadata.website : undefined,
+    industry: typeof metadata.industry === "string" ? metadata.industry : undefined,
+    description: typeof metadata.description === "string" ? metadata.description : undefined,
+    department: typeof metadata.department === "string" ? metadata.department : undefined,
+    position: typeof metadata.position === "string" ? metadata.position : undefined,
+    phone: typeof metadata.phone === "string" ? metadata.phone : undefined,
+  });
+
+  return role;
+}
