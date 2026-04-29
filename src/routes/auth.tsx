@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
-import { completePendingSignup, getCurrentRole, getDashboardPath, savePendingSignup, upsertRoleProfile, type AppRole } from "@/lib/auth-roles";
+import { completePendingSignup, getCurrentRole, getDashboardPath, savePendingSignup, upsertRoleProfile } from "@/lib/auth-roles";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/auth")({
@@ -26,13 +26,11 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signup");
-  const [role, setRole] = useState<AppRole>("brand");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [brandName, setBrandName] = useState("");
   const [industry, setIndustry] = useState("");
-  const [department, setDepartment] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -64,11 +62,10 @@ function AuthPage() {
       }
 
       const profile = {
-        role,
+        role: "brand" as const,
         fullName,
-        brandName: role === "brand" ? brandName : undefined,
-        industry: role === "brand" ? industry : undefined,
-        department: role === "styly_team" ? department : undefined,
+        brandName,
+        industry,
       };
 
       savePendingSignup({ ...profile, email });
@@ -84,7 +81,7 @@ function AuthPage() {
 
       if (data.session?.user) {
         await upsertRoleProfile(data.session.user.id, profile);
-        navigate({ to: getDashboardPath(role) });
+        navigate({ to: getDashboardPath("brand") });
         return;
       }
 
@@ -99,7 +96,7 @@ function AuthPage() {
 
   async function handleGoogle() {
     setError("");
-    savePendingSignup({ email, role, fullName: fullName || "Styly user", brandName, industry, department });
+    savePendingSignup({ email, role: "brand", fullName: fullName || "Styly user", brandName, industry });
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/auth` });
     if (result.error) setError(result.error.message);
   }
@@ -136,19 +133,22 @@ function AuthPage() {
             <form className="space-y-5" onSubmit={handleSubmit}>
               {mode === "signup" && (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <RoleCard active={role === "brand"} icon={Building2} title="Brand" onClick={() => setRole("brand")} />
-                  <RoleCard active={role === "styly_team"} icon={ShieldCheck} title="Styly team member" onClick={() => setRole("styly_team")} />
+                  <RoleCard active icon={Building2} title="Brand account" />
+                  <div className="rounded-2xl border border-border bg-muted p-4 text-left text-muted-foreground">
+                    <ShieldCheck className="mb-3 size-5" />
+                    <span className="text-sm font-medium">Styly team accounts are invite-only</span>
+                  </div>
                 </div>
               )}
 
               {mode === "signup" && (
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">{role === "brand" ? "Contact name" : "Full name"}</Label>
+                  <Label htmlFor="fullName">Contact name</Label>
                   <Input id="fullName" value={fullName} onChange={(event) => setFullName(event.target.value)} required placeholder="Your name" />
                 </div>
               )}
 
-              {mode === "signup" && role === "brand" && (
+              {mode === "signup" && (
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="brandName">Brand name</Label>
@@ -158,13 +158,6 @@ function AuthPage() {
                     <Label htmlFor="industry">Industry</Label>
                     <Input id="industry" value={industry} onChange={(event) => setIndustry(event.target.value)} placeholder="Fashion retail" />
                   </div>
-                </div>
-              )}
-
-              {mode === "signup" && role === "styly_team" && (
-                <div className="space-y-2">
-                  <Label htmlFor="department">Department</Label>
-                  <Input id="department" value={department} onChange={(event) => setDepartment(event.target.value)} placeholder="Operations" />
                 </div>
               )}
 
@@ -194,7 +187,7 @@ function AuthPage() {
   );
 }
 
-function RoleCard({ active, icon: Icon, title, onClick }: { active: boolean; icon: typeof Building2; title: string; onClick: () => void }) {
+function RoleCard({ active, icon: Icon, title, onClick }: { active: boolean; icon: typeof Building2; title: string; onClick?: () => void }) {
   return (
     <button type="button" onClick={onClick} className={cn("rounded-2xl border p-4 text-left transition", active ? "border-primary bg-brand-soft text-brand-soft-foreground" : "bg-card hover:bg-accent")}>
       <Icon className="mb-3 size-5" />
