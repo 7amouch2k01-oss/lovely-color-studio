@@ -40,9 +40,10 @@ function AuthPage() {
   }, []);
 
   async function redirectToRole() {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) return;
-    const pendingRole = await completePendingSignup(data.user.id, data.user.email);
+    const { data } = await supabase.auth.getSession();
+    const user = data.session?.user;
+    if (!user) return;
+    const pendingRole = await completePendingSignup(user.id, user.email);
     const accountRole = pendingRole ?? (await getCurrentRole());
     if (!accountRole) {
       setError("This account is missing a role. Please sign up again as a Brand account or contact Styly for team access.");
