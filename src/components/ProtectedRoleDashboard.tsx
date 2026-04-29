@@ -55,14 +55,16 @@ export function ProtectedRoleDashboard({ role }: Props) {
     let mounted = true;
 
     async function checkAccess() {
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) {
+      const { data } = await supabase.auth.getSession();
+      const user = data.session?.user;
+
+      if (!user) {
         navigate({ to: "/auth" });
         return;
       }
 
-      const pendingRole = await completePendingSignup(data.user.id, data.user.email);
-      const metadataRole = await ensureProfileFromUserMetadata(data.user.id, data.user.user_metadata ?? {});
+      const pendingRole = await completePendingSignup(user.id, user.email);
+      const metadataRole = await ensureProfileFromUserMetadata(user.id, user.user_metadata ?? {});
       const currentRole = pendingRole ?? metadataRole ?? (await getCurrentRole());
 
       if (!currentRole) {

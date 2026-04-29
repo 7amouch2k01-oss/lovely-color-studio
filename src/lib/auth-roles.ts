@@ -33,13 +33,13 @@ export function savePendingSignup(profile: SignupProfile & { email: string }) {
 }
 
 export async function getCurrentRole(): Promise<AppRole | null> {
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData.user) return null;
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session?.user) return null;
 
   const { data, error } = await supabase
     .from("user_roles")
     .select("role")
-    .eq("user_id", userData.user.id)
+    .eq("user_id", sessionData.session.user.id)
     .maybeSingle();
 
   if (error) throw error;
