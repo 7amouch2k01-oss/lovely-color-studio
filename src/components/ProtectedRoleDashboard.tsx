@@ -23,9 +23,12 @@ const roleContent = {
       { title: "Campaign planner", detail: "Map launch dates, budgets, deliverables, and review moments for every creator brief." },
       { title: "Influencer discovery", detail: "Shortlist creators by style category, audience fit, location, and recent performance." },
       { title: "Collaboration requests", detail: "Track incoming proposals, approve rates, and move accepted partners into production." },
+      { title: "Brand profile", detail: "Keep your public brand story, audience details, visual references, and product focus ready for matching." },
+      { title: "Content approvals", detail: "Review submitted looks, captions, usage rights, and final assets before a campaign goes live." },
+      { title: "Performance reports", detail: "Compare reach, engagement, creator conversion, and campaign spend across active partnerships." },
     ],
-    pipeline: ["Spring capsule launch", "UGC try-on series", "Retail pop-up coverage"],
-    actions: ["Complete brand story", "Upload campaign references", "Invite finance approver"],
+    pipeline: ["Spring capsule launch", "UGC try-on series", "Retail pop-up coverage", "Ramadan styling edit", "Influencer gifting list"],
+    actions: ["Complete brand story", "Upload campaign references", "Invite finance approver", "Create new campaign", "Browse creator matches", "Download report"],
     Icon: Building2,
   },
   styly_team: {
@@ -37,9 +40,12 @@ const roleContent = {
       { title: "Brand approvals", detail: "Validate new brand applications, review category fit, and flag accounts that need follow-up." },
       { title: "Member operations", detail: "Coordinate onboarding tasks, assign ownership, and keep creator support queues moving." },
       { title: "Platform analytics", detail: "Monitor brand growth, campaign velocity, creator match rates, and account health trends." },
+      { title: "Team directory", detail: "See who owns each onboarding lane, support queue, campaign review, and partner relationship." },
+      { title: "Quality control", detail: "Audit profile completeness, creator match quality, response times, and flagged collaboration risks." },
+      { title: "Announcements", detail: "Prepare updates for brands, creators, and internal operators when policies or launches change." },
     ],
-    pipeline: ["Approve waitlist brands", "Audit creator match quality", "Prepare weekly partner report"],
-    actions: ["Review pending applications", "Assign onboarding owners", "Check flagged accounts"],
+    pipeline: ["Approve waitlist brands", "Audit creator match quality", "Prepare weekly partner report", "Review campaign disputes", "Update onboarding checklist"],
+    actions: ["Review pending applications", "Assign onboarding owners", "Check flagged accounts", "Open team directory", "Create announcement", "Export partner data"],
     Icon: ShieldCheck,
   },
 };
@@ -148,7 +154,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
           </Card>
         </div>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {content.cards.map((card) => (
             <Card key={card.title} className="rounded-3xl shadow-sm">
               <CardHeader>
