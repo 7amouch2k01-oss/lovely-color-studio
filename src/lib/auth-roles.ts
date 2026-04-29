@@ -16,13 +16,20 @@ export type SignupProfile = {
 
 const pendingSignupKey = "styly_pending_signup_profile";
 
+function getSelfServiceRole(role: AppRole): "brand" | null {
+  return role === "brand" ? "brand" : null;
+}
+
 export function getDashboardPath(role: AppRole) {
   return role === "brand" ? "/brand-dashboard" : "/styly-team-dashboard";
 }
 
 export function savePendingSignup(profile: SignupProfile & { email: string }) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(pendingSignupKey, JSON.stringify(profile));
+  const selfServiceRole = getSelfServiceRole(profile.role);
+  if (!selfServiceRole) return;
+
+  window.localStorage.setItem(pendingSignupKey, JSON.stringify({ ...profile, role: selfServiceRole }));
 }
 
 export async function getCurrentRole(): Promise<AppRole | null> {
@@ -48,15 +55,21 @@ export async function upsertRoleProfile(userId: string, profile: SignupProfile) 
 
   if (roleReadError) throw roleReadError;
 
+  const accountRole = existingRole?.role ?? profile.role;
+
   if (!existingRole) {
+    if (profile.role !== "brand") {
+      throw new Error("Styly team member accounts must be created by an existing team administrator.");
+    }
+
     const { error: roleError } = await supabase.from("user_roles").insert({
       user_id: userId,
-      role: profile.role,
+      role: "brand",
     });
     if (roleError) throw roleError;
   }
 
-  if (profile.role === "brand") {
+  if (accountRole === "brand") {
     const { error } = await supabase.from("brand_profiles").upsert(
       {
         user_id: userId,
@@ -91,8 +104,19 @@ export async function completePendingSignup(userId: string, email?: string | nul
   const raw = window.localStorage.getItem(pendingSignupKey);
   if (!raw) return null;
 
-  const pending = JSON.parse(raw) as SignupProfile & { email: string };
+  let pending: SignupProfile & { email: string };
+  try {
+    pending = JSON.parse(raw) as SignupProfile & { email: string };
+  } catch {
+    window.localStorage.removeItem(pendingSignupKey);
+    return null;
+  }
+
   if (email && pending.email.toLowerCase() !== email.toLowerCase()) return null;
+  if (pending.role !== "brand") {
+    window.localStorage.removeItem(pendingSignupKey);
+    return null;
+  }
 
   await upsertRoleProfile(userId, pending);
   window.localStorage.removeItem(pendingSignupKey);
