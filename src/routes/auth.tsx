@@ -26,13 +26,11 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signup");
-  const [role, setRole] = useState<AppRole>("brand");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [brandName, setBrandName] = useState("");
   const [industry, setIndustry] = useState("");
-  const [department, setDepartment] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -64,11 +62,10 @@ function AuthPage() {
       }
 
       const profile = {
-        role,
+        role: "brand" as const,
         fullName,
-        brandName: role === "brand" ? brandName : undefined,
-        industry: role === "brand" ? industry : undefined,
-        department: role === "styly_team" ? department : undefined,
+        brandName,
+        industry,
       };
 
       savePendingSignup({ ...profile, email });
@@ -84,7 +81,7 @@ function AuthPage() {
 
       if (data.session?.user) {
         await upsertRoleProfile(data.session.user.id, profile);
-        navigate({ to: getDashboardPath(role) });
+        navigate({ to: getDashboardPath("brand") });
         return;
       }
 
@@ -99,7 +96,7 @@ function AuthPage() {
 
   async function handleGoogle() {
     setError("");
-    savePendingSignup({ email, role, fullName: fullName || "Styly user", brandName, industry, department });
+    savePendingSignup({ email, role: "brand", fullName: fullName || "Styly user", brandName, industry });
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/auth` });
     if (result.error) setError(result.error.message);
   }
