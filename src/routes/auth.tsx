@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Building2, Loader2, Lock, Mail, ShieldCheck, Sparkles } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,13 +35,17 @@ function AuthPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    redirectToRole().catch(() => undefined);
+  }, []);
+
   async function redirectToRole() {
     const { data } = await supabase.auth.getUser();
     if (!data.user) return;
     const pendingRole = await completePendingSignup(data.user.id, data.user.email);
     const accountRole = pendingRole ?? (await getCurrentRole());
     if (!accountRole) {
-      setError("This account is missing a role. Please sign up again and choose Brand or Styly team member.");
+      setError("This account is missing a role. Please sign up again as a Brand account or contact Styly for team access.");
       return;
     }
     navigate({ to: getDashboardPath(accountRole) });

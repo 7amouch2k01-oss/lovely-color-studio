@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Bell, Building2, LogOut, Search, ShieldCheck, Sparkles, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, Bell, Building2, CalendarDays, CheckCircle2, Clock3, LogOut, Megaphone, Search, ShieldCheck, Sparkles, TrendingUp, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,13 @@ const roleContent = {
     title: "Grow campaigns with Styly creators",
     intro: "Manage your brand presence, discover fashion talent, and track campaign performance from one workspace.",
     metrics: ["12 active campaigns", "48 creator matches", "8.7% engagement"],
-    cards: ["Campaign planner", "Influencer discovery", "Collaboration requests"],
+    cards: [
+      { title: "Campaign planner", detail: "Map launch dates, budgets, deliverables, and review moments for every creator brief." },
+      { title: "Influencer discovery", detail: "Shortlist creators by style category, audience fit, location, and recent performance." },
+      { title: "Collaboration requests", detail: "Track incoming proposals, approve rates, and move accepted partners into production." },
+    ],
+    pipeline: ["Spring capsule launch", "UGC try-on series", "Retail pop-up coverage"],
+    actions: ["Complete brand story", "Upload campaign references", "Invite finance approver"],
     Icon: Building2,
   },
   styly_team: {
@@ -27,7 +33,13 @@ const roleContent = {
     title: "Operate the Styly partner network",
     intro: "Review brands, manage onboarding, and monitor platform growth across the fashion community.",
     metrics: ["124 brands", "2.8K users", "94% profile completion"],
-    cards: ["Brand approvals", "Member operations", "Platform analytics"],
+    cards: [
+      { title: "Brand approvals", detail: "Validate new brand applications, review category fit, and flag accounts that need follow-up." },
+      { title: "Member operations", detail: "Coordinate onboarding tasks, assign ownership, and keep creator support queues moving." },
+      { title: "Platform analytics", detail: "Monitor brand growth, campaign velocity, creator match rates, and account health trends." },
+    ],
+    pipeline: ["Approve waitlist brands", "Audit creator match quality", "Prepare weekly partner report"],
+    actions: ["Review pending applications", "Assign onboarding owners", "Check flagged accounts"],
     Icon: ShieldCheck,
   },
 };
@@ -136,18 +148,52 @@ export function ProtectedRoleDashboard({ role }: Props) {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-3">
           {content.cards.map((card) => (
-            <Card key={card} className="rounded-3xl shadow-sm">
+            <Card key={card.title} className="rounded-3xl shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between gap-3">
-                  {card}
+                  {card.title}
                   <ArrowRight className="size-5 text-primary" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm leading-6 text-muted-foreground">Demo tools are ready here and can be connected to live data next.</p>
+                <p className="text-sm leading-6 text-muted-foreground">{card.detail}</p>
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <Card className="rounded-3xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Megaphone className="size-5 text-primary" /> Priority work</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {content.pipeline.map((item, index) => (
+                <div key={item} className="flex items-start gap-3 rounded-2xl border bg-background p-4">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-medium text-brand-soft-foreground">{index + 1}</span>
+                  <div>
+                    <p className="font-medium">{item}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Scheduled for review this week.</p>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-3xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><CalendarDays className="size-5 text-primary" /> Next steps</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-3">
+              {content.actions.map((action) => (
+                <div key={action} className="rounded-2xl border bg-background p-4">
+                  <CheckCircle2 className="mb-3 size-5 text-primary" />
+                  <p className="text-sm font-medium leading-5">{action}</p>
+                  <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground"><Clock3 className="size-3" /> Ready now</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </div>
 
         <Card className="mt-6 rounded-3xl shadow-sm">
