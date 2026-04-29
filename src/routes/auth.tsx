@@ -187,7 +187,7 @@ function AuthPage() {
   );
 }
 
-function RoleCard({ active, icon: Icon, title, onClick }: { active: boolean; icon: typeof Building2; title: string; onClick: () => void }) {
+function RoleCard({ active, icon: Icon, title, onClick }: { active: boolean; icon: typeof Building2; title: string; onClick?: () => void }) {
   return (
     <button type="button" onClick={onClick} className={cn("rounded-2xl border p-4 text-left transition", active ? "border-primary bg-brand-soft text-brand-soft-foreground" : "bg-card hover:bg-accent")}>
       <Icon className="mb-3 size-5" />
