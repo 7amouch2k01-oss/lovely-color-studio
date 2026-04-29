@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
-import { completePendingSignup, getCurrentRole, getDashboardPath, savePendingSignup, upsertRoleProfile, type AppRole } from "@/lib/auth-roles";
+import { completePendingSignup, getCurrentRole, getDashboardPath, savePendingSignup, upsertRoleProfile } from "@/lib/auth-roles";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/auth")({
@@ -133,19 +133,22 @@ function AuthPage() {
             <form className="space-y-5" onSubmit={handleSubmit}>
               {mode === "signup" && (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <RoleCard active={role === "brand"} icon={Building2} title="Brand" onClick={() => setRole("brand")} />
-                  <RoleCard active={role === "styly_team"} icon={ShieldCheck} title="Styly team member" onClick={() => setRole("styly_team")} />
+                  <RoleCard active icon={Building2} title="Brand account" />
+                  <div className="rounded-2xl border border-border bg-muted p-4 text-left text-muted-foreground">
+                    <ShieldCheck className="mb-3 size-5" />
+                    <span className="text-sm font-medium">Styly team accounts are invite-only</span>
+                  </div>
                 </div>
               )}
 
               {mode === "signup" && (
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">{role === "brand" ? "Contact name" : "Full name"}</Label>
+                  <Label htmlFor="fullName">Contact name</Label>
                   <Input id="fullName" value={fullName} onChange={(event) => setFullName(event.target.value)} required placeholder="Your name" />
                 </div>
               )}
 
-              {mode === "signup" && role === "brand" && (
+              {mode === "signup" && (
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="brandName">Brand name</Label>
@@ -155,13 +158,6 @@ function AuthPage() {
                     <Label htmlFor="industry">Industry</Label>
                     <Input id="industry" value={industry} onChange={(event) => setIndustry(event.target.value)} placeholder="Fashion retail" />
                   </div>
-                </div>
-              )}
-
-              {mode === "signup" && role === "styly_team" && (
-                <div className="space-y-2">
-                  <Label htmlFor="department">Department</Label>
-                  <Input id="department" value={department} onChange={(event) => setDepartment(event.target.value)} placeholder="Operations" />
                 </div>
               )}
 
