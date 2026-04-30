@@ -79,6 +79,12 @@ export async function inviteStylyMember(input: InviteStylyMemberInput) {
     if (error) throw error;
     invitedUserId = data.user?.id;
     emailSent = true;
+  } else {
+    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(normalizedEmail, {
+      redirectTo: input.redirectTo,
+    });
+    if (error) throw error;
+    emailSent = true;
   }
 
   if (!invitedUserId) throw new Error("Could not create the invited member account.");
@@ -115,7 +121,7 @@ export async function inviteStylyMember(input: InviteStylyMemberInput) {
     email: normalizedEmail,
     emailSent,
     message: emailSent
-      ? "Invite sent and Styly team access granted."
-      : "This user already exists, so Styly team access was granted.",
+      ? "Invite email sent and Styly team access granted."
+      : "Styly team access was granted.",
   };
 }
