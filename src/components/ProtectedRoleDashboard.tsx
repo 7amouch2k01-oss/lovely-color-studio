@@ -1,13 +1,39 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Bell, Building2, CalendarDays, CheckCircle2, Clock3, LogOut, Megaphone, Search, ShieldCheck, Sparkles, TrendingUp, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  ArrowRight,
+  Bell,
+  Building2,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  Loader2,
+  LogOut,
+  Megaphone,
+  Search,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+  UserPlus,
+} from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { completePendingSignup, ensureProfileFromUserMetadata, getCurrentRole, getDashboardPath, type AppRole } from "@/lib/auth-roles";
+import {
+  completePendingSignup,
+  ensureProfileFromUserMetadata,
+  getCurrentRole,
+  getDashboardPath,
+  type AppRole,
+} from "@/lib/auth-roles";
+import { sendStylyMemberInvite } from "@/server/team-invites.functions";
 
 type Props = {
   role: AppRole;
@@ -17,43 +43,131 @@ const roleContent = {
   brand: {
     label: "Brand dashboard",
     title: "Grow campaigns with Styly creators",
-    intro: "Manage your brand presence, discover fashion talent, and track campaign performance from one workspace.",
+    intro:
+      "Manage your brand presence, discover fashion talent, and track campaign performance from one workspace.",
     metrics: ["12 active campaigns", "48 creator matches", "8.7% engagement"],
     cards: [
-      { title: "Campaign planner", detail: "Map launch dates, budgets, deliverables, and review moments for every creator brief." },
-      { title: "Influencer discovery", detail: "Shortlist creators by style category, audience fit, location, and recent performance." },
-      { title: "Collaboration requests", detail: "Track incoming proposals, approve rates, and move accepted partners into production." },
-      { title: "Brand profile", detail: "Keep your public brand story, audience details, visual references, and product focus ready for matching." },
-      { title: "Content approvals", detail: "Review submitted looks, captions, usage rights, and final assets before a campaign goes live." },
-      { title: "Performance reports", detail: "Compare reach, engagement, creator conversion, and campaign spend across active partnerships." },
+      {
+        title: "Campaign planner",
+        detail:
+          "Map launch dates, budgets, deliverables, and review moments for every creator brief.",
+      },
+      {
+        title: "Influencer discovery",
+        detail:
+          "Shortlist creators by style category, audience fit, location, and recent performance.",
+      },
+      {
+        title: "Collaboration requests",
+        detail:
+          "Track incoming proposals, approve rates, and move accepted partners into production.",
+      },
+      {
+        title: "Brand profile",
+        detail:
+          "Keep your public brand story, audience details, visual references, and product focus ready for matching.",
+      },
+      {
+        title: "Content approvals",
+        detail:
+          "Review submitted looks, captions, usage rights, and final assets before a campaign goes live.",
+      },
+      {
+        title: "Performance reports",
+        detail:
+          "Compare reach, engagement, creator conversion, and campaign spend across active partnerships.",
+      },
     ],
-    pipeline: ["Spring capsule launch", "UGC try-on series", "Retail pop-up coverage", "Ramadan styling edit", "Influencer gifting list"],
-    actions: ["Complete brand story", "Upload campaign references", "Invite finance approver", "Create new campaign", "Browse creator matches", "Download report"],
+    pipeline: [
+      "Spring capsule launch",
+      "UGC try-on series",
+      "Retail pop-up coverage",
+      "Ramadan styling edit",
+      "Influencer gifting list",
+    ],
+    actions: [
+      "Complete brand story",
+      "Upload campaign references",
+      "Invite finance approver",
+      "Create new campaign",
+      "Browse creator matches",
+      "Download report",
+    ],
     Icon: Building2,
   },
   styly_team: {
     label: "Styly team dashboard",
     title: "Operate the Styly partner network",
-    intro: "Review brands, manage onboarding, and monitor platform growth across the fashion community.",
+    intro:
+      "Review brands, manage onboarding, and monitor platform growth across the fashion community.",
     metrics: ["124 brands", "2.8K users", "94% profile completion"],
     cards: [
-      { title: "Brand approvals", detail: "Validate new brand applications, review category fit, and flag accounts that need follow-up." },
-      { title: "Member operations", detail: "Coordinate onboarding tasks, assign ownership, and keep creator support queues moving." },
-      { title: "Platform analytics", detail: "Monitor brand growth, campaign velocity, creator match rates, and account health trends." },
-      { title: "Team directory", detail: "See who owns each onboarding lane, support queue, campaign review, and partner relationship." },
-      { title: "Quality control", detail: "Audit profile completeness, creator match quality, response times, and flagged collaboration risks." },
-      { title: "Announcements", detail: "Prepare updates for brands, creators, and internal operators when policies or launches change." },
+      {
+        title: "Brand approvals",
+        detail:
+          "Validate new brand applications, review category fit, and flag accounts that need follow-up.",
+      },
+      {
+        title: "Member operations",
+        detail:
+          "Coordinate onboarding tasks, assign ownership, and keep creator support queues moving.",
+      },
+      {
+        title: "Platform analytics",
+        detail:
+          "Monitor brand growth, campaign velocity, creator match rates, and account health trends.",
+      },
+      {
+        title: "Team directory",
+        detail:
+          "See who owns each onboarding lane, support queue, campaign review, and partner relationship.",
+      },
+      {
+        title: "Quality control",
+        detail:
+          "Audit profile completeness, creator match quality, response times, and flagged collaboration risks.",
+      },
+      {
+        title: "Announcements",
+        detail:
+          "Prepare updates for brands, creators, and internal operators when policies or launches change.",
+      },
     ],
-    pipeline: ["Approve waitlist brands", "Audit creator match quality", "Prepare weekly partner report", "Review campaign disputes", "Update onboarding checklist"],
-    actions: ["Review pending applications", "Assign onboarding owners", "Check flagged accounts", "Open team directory", "Create announcement", "Export partner data"],
+    pipeline: [
+      "Approve waitlist brands",
+      "Audit creator match quality",
+      "Prepare weekly partner report",
+      "Review campaign disputes",
+      "Update onboarding checklist",
+    ],
+    actions: [
+      "Review pending applications",
+      "Assign onboarding owners",
+      "Check flagged accounts",
+      "Open team directory",
+      "Create announcement",
+      "Export partner data",
+    ],
     Icon: ShieldCheck,
   },
 };
 
 export function ProtectedRoleDashboard({ role }: Props) {
   const navigate = useNavigate();
+  const inviteStylyMember = useServerFn(sendStylyMemberInvite);
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteMessage, setInviteMessage] = useState("");
+  const [inviteError, setInviteError] = useState("");
+  const [inviteForm, setInviteForm] = useState({
+    email: "",
+    fullName: "",
+    department: "",
+    position: "",
+    phone: "",
+    note: "",
+  });
   const content = roleContent[role];
   const Icon = content.Icon;
 
@@ -100,8 +214,35 @@ export function ProtectedRoleDashboard({ role }: Props) {
     navigate({ to: "/auth" });
   }
 
+  async function submitInvite(event: FormEvent) {
+    event.preventDefault();
+    setInviteLoading(true);
+    setInviteMessage("");
+    setInviteError("");
+
+    try {
+      const { data } = await supabase.auth.getSession();
+      const accessToken = data.session?.access_token;
+      if (!accessToken) throw new Error("Please sign in again before sending an invite.");
+
+      const result = await inviteStylyMember({ data: { ...inviteForm, accessToken } });
+      setInviteMessage(result.message);
+      setInviteForm({ email: "", fullName: "", department: "", position: "", phone: "", note: "" });
+    } catch (caught) {
+      setInviteError(
+        caught instanceof Error ? caught.message : "Could not send this invite. Please try again.",
+      );
+    } finally {
+      setInviteLoading(false);
+    }
+  }
+
   if (loading || !authorized) {
-    return <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">Loading your workspace...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+        Loading your workspace...
+      </div>
+    );
   }
 
   return (
@@ -119,8 +260,12 @@ export function ProtectedRoleDashboard({ role }: Props) {
             <span className="text-sm text-muted-foreground">Search dashboard...</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" aria-label="Notifications"><Bell /></Button>
-            <Button variant="ghost" onClick={signOut}><LogOut /> Sign out</Button>
+            <Button variant="outline" size="icon" aria-label="Notifications">
+              <Bell />
+            </Button>
+            <Button variant="ghost" onClick={signOut}>
+              <LogOut /> Sign out
+            </Button>
           </div>
         </div>
       </header>
@@ -128,9 +273,15 @@ export function ProtectedRoleDashboard({ role }: Props) {
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr] lg:items-stretch">
           <div className="overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_38%),linear-gradient(135deg,var(--card),var(--brand-soft))] p-6 shadow-sm sm:p-8">
-            <Badge className="rounded-full bg-brand-soft text-brand-soft-foreground hover:bg-brand-soft">{content.label}</Badge>
-            <h1 className="mt-5 max-w-3xl text-4xl font-normal tracking-tight sm:text-6xl">{content.title}</h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">{content.intro}</p>
+            <Badge className="rounded-full bg-brand-soft text-brand-soft-foreground hover:bg-brand-soft">
+              {content.label}
+            </Badge>
+            <h1 className="mt-5 max-w-3xl text-4xl font-normal tracking-tight sm:text-6xl">
+              {content.title}
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
+              {content.intro}
+            </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {content.metrics.map((metric) => (
                 <div key={metric} className="rounded-2xl border bg-card/80 p-4 shadow-sm">
@@ -173,15 +324,24 @@ export function ProtectedRoleDashboard({ role }: Props) {
         <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <Card className="rounded-3xl shadow-sm">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Megaphone className="size-5 text-primary" /> Priority work</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Megaphone className="size-5 text-primary" /> Priority work
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {content.pipeline.map((item, index) => (
-                <div key={item} className="flex items-start gap-3 rounded-2xl border bg-background p-4">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-medium text-brand-soft-foreground">{index + 1}</span>
+                <div
+                  key={item}
+                  className="flex items-start gap-3 rounded-2xl border bg-background p-4"
+                >
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-medium text-brand-soft-foreground">
+                    {index + 1}
+                  </span>
                   <div>
                     <p className="font-medium">{item}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">Scheduled for review this week.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Scheduled for review this week.
+                    </p>
                   </div>
                 </div>
               ))}
@@ -190,23 +350,134 @@ export function ProtectedRoleDashboard({ role }: Props) {
 
           <Card className="rounded-3xl shadow-sm">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><CalendarDays className="size-5 text-primary" /> Next steps</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarDays className="size-5 text-primary" /> Next steps
+              </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-3">
               {content.actions.map((action) => (
                 <div key={action} className="rounded-2xl border bg-background p-4">
                   <CheckCircle2 className="mb-3 size-5 text-primary" />
                   <p className="text-sm font-medium leading-5">{action}</p>
-                  <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground"><Clock3 className="size-3" /> Ready now</p>
+                  <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock3 className="size-3" /> Ready now
+                  </p>
                 </div>
               ))}
             </CardContent>
           </Card>
         </div>
 
+        {role === "styly_team" && (
+          <Card className="mt-6 rounded-3xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserPlus className="size-5 text-primary" /> Invite Styly member
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form className="grid gap-4 lg:grid-cols-2" onSubmit={submitInvite}>
+                <div className="space-y-2">
+                  <Label htmlFor="inviteEmail">Email</Label>
+                  <Input
+                    id="inviteEmail"
+                    type="email"
+                    required
+                    value={inviteForm.email}
+                    onChange={(event) =>
+                      setInviteForm((current) => ({ ...current, email: event.target.value }))
+                    }
+                    placeholder="member@styly.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="inviteFullName">Full name</Label>
+                  <Input
+                    id="inviteFullName"
+                    required
+                    minLength={2}
+                    value={inviteForm.fullName}
+                    onChange={(event) =>
+                      setInviteForm((current) => ({ ...current, fullName: event.target.value }))
+                    }
+                    placeholder="Team member name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="inviteDepartment">Department</Label>
+                  <Input
+                    id="inviteDepartment"
+                    value={inviteForm.department}
+                    onChange={(event) =>
+                      setInviteForm((current) => ({ ...current, department: event.target.value }))
+                    }
+                    placeholder="Operations"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="invitePosition">Position</Label>
+                  <Input
+                    id="invitePosition"
+                    value={inviteForm.position}
+                    onChange={(event) =>
+                      setInviteForm((current) => ({ ...current, position: event.target.value }))
+                    }
+                    placeholder="Partner success lead"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="invitePhone">Phone</Label>
+                  <Input
+                    id="invitePhone"
+                    value={inviteForm.phone}
+                    onChange={(event) =>
+                      setInviteForm((current) => ({ ...current, phone: event.target.value }))
+                    }
+                    placeholder="Optional"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="inviteNote">Invite note</Label>
+                  <Textarea
+                    id="inviteNote"
+                    maxLength={500}
+                    value={inviteForm.note}
+                    onChange={(event) =>
+                      setInviteForm((current) => ({ ...current, note: event.target.value }))
+                    }
+                    placeholder="Optional context for the invite"
+                  />
+                </div>
+                <div className="space-y-3 lg:col-span-2">
+                  {inviteError && (
+                    <p className="rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                      {inviteError}
+                    </p>
+                  )}
+                  {inviteMessage && (
+                    <p className="rounded-2xl bg-brand-soft px-4 py-3 text-sm text-brand-soft-foreground">
+                      {inviteMessage}
+                    </p>
+                  )}
+                  <Button
+                    type="submit"
+                    disabled={inviteLoading}
+                    className="rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground shadow-lg shadow-primary/20"
+                  >
+                    {inviteLoading ? <Loader2 className="animate-spin" /> : <Send />}
+                    Send invite and grant access
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="mt-6 rounded-3xl shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><TrendingUp className="size-5 text-primary" /> Profile settings</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="size-5 text-primary" /> Profile settings
+            </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <Input placeholder={role === "brand" ? "Brand display name" : "Full name"} />
