@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Bell, Building2, CalendarDays, CheckCircle2, Clock3, Loader2, LogOut, Megaphone, Search, Send, ShieldCheck, Sparkles, TrendingUp, UserPlus, Users } from "lucide-react";
+import { ArrowRight, Bell, Building2, CalendarDays, CheckCircle2, Clock3, Loader2, LogOut, Megaphone, Search, Send, ShieldCheck, Sparkles, TrendingUp, UserPlus } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
