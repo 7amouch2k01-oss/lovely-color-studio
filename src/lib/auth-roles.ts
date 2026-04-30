@@ -39,25 +39,27 @@ export async function getCurrentRole(): Promise<AppRole | null> {
   const { data, error } = await supabase
     .from("user_roles")
     .select("role")
-    .eq("user_id", sessionData.session.user.id)
-    .maybeSingle();
+    .eq("user_id", sessionData.session.user.id);
 
   if (error) throw error;
-  return data?.role ?? null;
+  const roles = data?.map((item) => item.role) ?? [];
+  if (roles.includes("styly_team")) return "styly_team";
+  if (roles.includes("brand")) return "brand";
+  return null;
 }
 
-export async function upsertRoleProfile(userId: string, profile: SignupProfile) {
-  const { data: existingRole, error: roleReadError } = await supabase
+export async function upsertRoleProfile(userId: string, profile: SignupProfile): Promise<AppRole> {
+  const { data: existingRoles, error: roleReadError } = await supabase
     .from("user_roles")
     .select("role")
-    .eq("user_id", userId)
-    .maybeSingle();
+    .eq("user_id", userId);
 
   if (roleReadError) throw roleReadError;
 
-  const accountRole = existingRole?.role ?? profile.role;
+  const roleList = existingRoles?.map((item) => item.role) ?? [];
+  const accountRole = roleList.includes("styly_team") ? "styly_team" : roleList[0] ?? profile.role;
 
-  if (!existingRole) {
+  if (roleList.length === 0) {
     if (profile.role !== "brand") {
       throw new Error("Styly team member accounts must be created by an existing team administrator.");
     }
@@ -82,7 +84,7 @@ export async function upsertRoleProfile(userId: string, profile: SignupProfile) 
       { onConflict: "user_id" },
     );
     if (error) throw error;
-    return;
+    return accountRole;
   }
 
   const { error } = await supabase.from("team_member_profiles").upsert(
@@ -96,6 +98,7 @@ export async function upsertRoleProfile(userId: string, profile: SignupProfile) 
     { onConflict: "user_id" },
   );
   if (error) throw error;
+  return accountRole;
 }
 
 export async function completePendingSignup(userId: string, email?: string | null) {
@@ -118,9 +121,9 @@ export async function completePendingSignup(userId: string, email?: string | nul
     return null;
   }
 
-  await upsertRoleProfile(userId, pending);
+  const accountRole = await upsertRoleProfile(userId, pending);
   window.localStorage.removeItem(pendingSignupKey);
-  return pending.role;
+  return accountRole;
 }
 
 export async function ensureProfileFromUserMetadata(userId: string, metadata: Record<string, unknown>) {
