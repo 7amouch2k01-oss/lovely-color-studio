@@ -1,13 +1,17 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Bell, Building2, CalendarDays, CheckCircle2, Clock3, LogOut, Megaphone, Search, ShieldCheck, Sparkles, TrendingUp, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { ArrowRight, Bell, Building2, CalendarDays, CheckCircle2, Clock3, Loader2, LogOut, Megaphone, Search, Send, ShieldCheck, Sparkles, TrendingUp, UserPlus, Users } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { completePendingSignup, ensureProfileFromUserMetadata, getCurrentRole, getDashboardPath, type AppRole } from "@/lib/auth-roles";
+import { sendStylyMemberInvite } from "@/server/team-invites.functions";
 
 type Props = {
   role: AppRole;
