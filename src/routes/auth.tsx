@@ -8,7 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
-import { completePendingSignup, getCurrentRole, getDashboardPath, savePendingSignup, upsertRoleProfile } from "@/lib/auth-roles";
+import {
+  completePendingSignup,
+  getCurrentRole,
+  getDashboardPath,
+  savePendingSignup,
+  upsertRoleProfile,
+  type AppRole,
+} from "@/lib/auth-roles";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/auth")({
@@ -29,6 +36,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [selectedRole, setSelectedRole] = useState<AppRole>("brand");
   const [brandName, setBrandName] = useState("");
   const [industry, setIndustry] = useState("");
   const [loading, setLoading] = useState(false);
@@ -67,10 +75,11 @@ function AuthPage() {
       }
 
       const profile = {
-        role: "brand" as const,
+        role: selectedRole,
         fullName,
-        brandName,
+        brandName: selectedRole === "brand" ? brandName : undefined,
         industry,
+        department: selectedRole === "styly_team" ? industry : undefined,
       };
 
       savePendingSignup({ ...profile, email });
@@ -85,8 +94,8 @@ function AuthPage() {
       if (signUpError) throw signUpError;
 
       if (data.session?.user) {
-        await upsertRoleProfile(data.session.user.id, profile);
-        navigate({ to: getDashboardPath("brand") });
+        const accountRole = await upsertRoleProfile(data.session.user.id, profile);
+        navigate({ to: getDashboardPath(accountRole) });
         return;
       }
 
@@ -101,7 +110,14 @@ function AuthPage() {
 
   async function handleGoogle() {
     setError("");
-    savePendingSignup({ email, role: "brand", fullName: fullName || "Styly user", brandName, industry });
+    savePendingSignup({
+      email,
+      role: selectedRole,
+      fullName: fullName || "Styly user",
+      brandName: selectedRole === "brand" ? brandName : undefined,
+      industry,
+      department: selectedRole === "styly_team" ? industry : undefined,
+    });
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/auth` });
     if (result.error) setError(result.error.message);
   }
