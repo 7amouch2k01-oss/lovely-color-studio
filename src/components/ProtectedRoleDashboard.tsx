@@ -56,8 +56,13 @@ const roleContent = {
 
 export function ProtectedRoleDashboard({ role }: Props) {
   const navigate = useNavigate();
+  const inviteStylyMember = useServerFn(sendStylyMemberInvite);
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteMessage, setInviteMessage] = useState("");
+  const [inviteError, setInviteError] = useState("");
+  const [inviteForm, setInviteForm] = useState({ email: "", fullName: "", department: "", position: "", phone: "", note: "" });
   const content = roleContent[role];
   const Icon = content.Icon;
 
@@ -102,6 +107,27 @@ export function ProtectedRoleDashboard({ role }: Props) {
   async function signOut() {
     await supabase.auth.signOut();
     navigate({ to: "/auth" });
+  }
+
+  async function submitInvite(event: FormEvent) {
+    event.preventDefault();
+    setInviteLoading(true);
+    setInviteMessage("");
+    setInviteError("");
+
+    try {
+      const { data } = await supabase.auth.getSession();
+      const accessToken = data.session?.access_token;
+      if (!accessToken) throw new Error("Please sign in again before sending an invite.");
+
+      const result = await inviteStylyMember({ data: { ...inviteForm, accessToken } });
+      setInviteMessage(result.message);
+      setInviteForm({ email: "", fullName: "", department: "", position: "", phone: "", note: "" });
+    } catch (caught) {
+      setInviteError(caught instanceof Error ? caught.message : "Could not send this invite. Please try again.");
+    } finally {
+      setInviteLoading(false);
+    }
   }
 
   if (loading || !authorized) {
