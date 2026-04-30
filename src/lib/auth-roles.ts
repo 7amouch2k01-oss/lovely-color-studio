@@ -16,8 +16,8 @@ export type SignupProfile = {
 
 const pendingSignupKey = "styly_pending_signup_profile";
 
-function getSelfServiceRole(role: AppRole): "brand" | null {
-  return role === "brand" ? "brand" : null;
+function getSelfServiceRole(role: AppRole): AppRole {
+  return role;
 }
 
 export function getDashboardPath(role: AppRole) {
@@ -65,15 +65,9 @@ export async function upsertRoleProfile(userId: string, profile: SignupProfile):
     : (roleList[0] ?? profile.role);
 
   if (roleList.length === 0) {
-    if (profile.role !== "brand") {
-      throw new Error(
-        "Styly team member accounts must be created by an existing team administrator.",
-      );
-    }
-
     const { error: roleError } = await supabase.from("user_roles").insert({
       user_id: userId,
-      role: "brand",
+      role: profile.role,
     });
     if (roleError) throw roleError;
   }
@@ -123,11 +117,6 @@ export async function completePendingSignup(userId: string, email?: string | nul
   }
 
   if (email && pending.email.toLowerCase() !== email.toLowerCase()) return null;
-  if (pending.role !== "brand") {
-    window.localStorage.removeItem(pendingSignupKey);
-    return null;
-  }
-
   const accountRole = await upsertRoleProfile(userId, pending);
   window.localStorage.removeItem(pendingSignupKey);
   return accountRole;
