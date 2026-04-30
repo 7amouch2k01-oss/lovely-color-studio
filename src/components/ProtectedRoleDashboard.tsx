@@ -234,6 +234,50 @@ export function ProtectedRoleDashboard({ role }: Props) {
           </Card>
         </div>
 
+        {role === "styly_team" && (
+          <Card className="mt-6 rounded-3xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><UserPlus className="size-5 text-primary" /> Invite Styly member</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form className="grid gap-4 lg:grid-cols-2" onSubmit={submitInvite}>
+                <div className="space-y-2">
+                  <Label htmlFor="inviteEmail">Email</Label>
+                  <Input id="inviteEmail" type="email" required value={inviteForm.email} onChange={(event) => setInviteForm((current) => ({ ...current, email: event.target.value }))} placeholder="member@styly.com" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="inviteFullName">Full name</Label>
+                  <Input id="inviteFullName" required minLength={2} value={inviteForm.fullName} onChange={(event) => setInviteForm((current) => ({ ...current, fullName: event.target.value }))} placeholder="Team member name" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="inviteDepartment">Department</Label>
+                  <Input id="inviteDepartment" value={inviteForm.department} onChange={(event) => setInviteForm((current) => ({ ...current, department: event.target.value }))} placeholder="Operations" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="invitePosition">Position</Label>
+                  <Input id="invitePosition" value={inviteForm.position} onChange={(event) => setInviteForm((current) => ({ ...current, position: event.target.value }))} placeholder="Partner success lead" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="invitePhone">Phone</Label>
+                  <Input id="invitePhone" value={inviteForm.phone} onChange={(event) => setInviteForm((current) => ({ ...current, phone: event.target.value }))} placeholder="Optional" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="inviteNote">Invite note</Label>
+                  <Textarea id="inviteNote" maxLength={500} value={inviteForm.note} onChange={(event) => setInviteForm((current) => ({ ...current, note: event.target.value }))} placeholder="Optional context for the invite" />
+                </div>
+                <div className="space-y-3 lg:col-span-2">
+                  {inviteError && <p className="rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">{inviteError}</p>}
+                  {inviteMessage && <p className="rounded-2xl bg-brand-soft px-4 py-3 text-sm text-brand-soft-foreground">{inviteMessage}</p>}
+                  <Button type="submit" disabled={inviteLoading} className="rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground shadow-lg shadow-primary/20">
+                    {inviteLoading ? <Loader2 className="animate-spin" /> : <Send />}
+                    Send invite and grant access
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="mt-6 rounded-3xl shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><TrendingUp className="size-5 text-primary" /> Profile settings</CardTitle>
