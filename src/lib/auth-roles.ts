@@ -29,7 +29,10 @@ export function savePendingSignup(profile: SignupProfile & { email: string }) {
   const selfServiceRole = getSelfServiceRole(profile.role);
   if (!selfServiceRole) return;
 
-  window.localStorage.setItem(pendingSignupKey, JSON.stringify({ ...profile, role: selfServiceRole }));
+  window.localStorage.setItem(
+    pendingSignupKey,
+    JSON.stringify({ ...profile, role: selfServiceRole }),
+  );
 }
 
 export async function getCurrentRole(): Promise<AppRole | null> {
@@ -57,11 +60,15 @@ export async function upsertRoleProfile(userId: string, profile: SignupProfile):
   if (roleReadError) throw roleReadError;
 
   const roleList = existingRoles?.map((item) => item.role) ?? [];
-  const accountRole = roleList.includes("styly_team") ? "styly_team" : roleList[0] ?? profile.role;
+  const accountRole = roleList.includes("styly_team")
+    ? "styly_team"
+    : (roleList[0] ?? profile.role);
 
   if (roleList.length === 0) {
     if (profile.role !== "brand") {
-      throw new Error("Styly team member accounts must be created by an existing team administrator.");
+      throw new Error(
+        "Styly team member accounts must be created by an existing team administrator.",
+      );
     }
 
     const { error: roleError } = await supabase.from("user_roles").insert({
@@ -126,7 +133,10 @@ export async function completePendingSignup(userId: string, email?: string | nul
   return accountRole;
 }
 
-export async function ensureProfileFromUserMetadata(userId: string, metadata: Record<string, unknown>) {
+export async function ensureProfileFromUserMetadata(
+  userId: string,
+  metadata: Record<string, unknown>,
+) {
   const role = metadata.role === "brand" || metadata.role === "styly_team" ? metadata.role : null;
   if (!role) return null;
 
