@@ -154,11 +154,18 @@ function AuthPage() {
             <form className="space-y-5" onSubmit={handleSubmit}>
               {mode === "signup" && (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <RoleCard active icon={Building2} title="Brand account" />
-                  <div className="rounded-2xl border border-border bg-muted p-4 text-left text-muted-foreground">
-                    <ShieldCheck className="mb-3 size-5" />
-                    <span className="text-sm font-medium">Styly team accounts are invite-only</span>
-                  </div>
+                  <RoleCard
+                    active={selectedRole === "brand"}
+                    icon={Building2}
+                    title="Brand account"
+                    onClick={() => setSelectedRole("brand")}
+                  />
+                  <RoleCard
+                    active={selectedRole === "styly_team"}
+                    icon={ShieldCheck}
+                    title="Styly team account"
+                    onClick={() => setSelectedRole("styly_team")}
+                  />
                 </div>
               )}
 
@@ -171,13 +178,15 @@ function AuthPage() {
 
               {mode === "signup" && (
                 <div className="grid gap-4 sm:grid-cols-2">
+                  {selectedRole === "brand" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="brandName">Brand name</Label>
+                      <Input id="brandName" value={brandName} onChange={(event) => setBrandName(event.target.value)} required placeholder="Brand studio" />
+                    </div>
+                  )}
                   <div className="space-y-2">
-                    <Label htmlFor="brandName">Brand name</Label>
-                    <Input id="brandName" value={brandName} onChange={(event) => setBrandName(event.target.value)} required placeholder="Brand studio" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="industry">Industry</Label>
-                    <Input id="industry" value={industry} onChange={(event) => setIndustry(event.target.value)} placeholder="Fashion retail" />
+                    <Label htmlFor="industry">{selectedRole === "brand" ? "Industry" : "Department"}</Label>
+                    <Input id="industry" value={industry} onChange={(event) => setIndustry(event.target.value)} placeholder={selectedRole === "brand" ? "Fashion retail" : "Operations"} />
                   </div>
                 </div>
               )}
