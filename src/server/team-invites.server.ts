@@ -33,7 +33,9 @@ async function findUserByEmail(email: string) {
     const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 });
     if (error) throw error;
 
-    const user = data.users.find((candidate) => candidate.email?.toLowerCase() === email.toLowerCase());
+    const user = data.users.find(
+      (candidate) => candidate.email?.toLowerCase() === email.toLowerCase(),
+    );
     if (user) return user;
     if (data.users.length < 1000) return null;
   }
@@ -44,7 +46,8 @@ async function findUserByEmail(email: string) {
 export async function inviteStylyMember(input: InviteStylyMemberInput) {
   const userClient = createUserClient(input.accessToken);
   const { data: userData, error: userError } = await userClient.auth.getUser(input.accessToken);
-  if (userError || !userData.user) throw new Error("Please sign in again before sending an invite.");
+  if (userError || !userData.user)
+    throw new Error("Please sign in again before sending an invite.");
 
   const { data: isTeamMember, error: roleError } = await userClient.rpc("has_role", {
     _user_id: userData.user.id,
