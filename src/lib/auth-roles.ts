@@ -130,7 +130,7 @@ export async function ensureProfileFromUserMetadata(userId: string, metadata: Re
   const role = metadata.role === "brand" || metadata.role === "styly_team" ? metadata.role : null;
   if (!role) return null;
 
-  await upsertRoleProfile(userId, {
+  return upsertRoleProfile(userId, {
     role,
     fullName: String(metadata.fullName ?? metadata.contactName ?? "Styly user"),
     brandName: typeof metadata.brandName === "string" ? metadata.brandName : undefined,
@@ -141,6 +141,4 @@ export async function ensureProfileFromUserMetadata(userId: string, metadata: Re
     position: typeof metadata.position === "string" ? metadata.position : undefined,
     phone: typeof metadata.phone === "string" ? metadata.phone : undefined,
   });
-
-  return role;
 }
