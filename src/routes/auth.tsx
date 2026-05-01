@@ -10,6 +10,7 @@ import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import {
   completePendingSignup,
+  ensureProfileFromUserMetadata,
   getCurrentRole,
   getDashboardPath,
   savePendingSignup,
