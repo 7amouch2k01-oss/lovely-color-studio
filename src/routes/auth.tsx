@@ -105,16 +105,22 @@ function AuthPage() {
       });
       if (signUpError) throw signUpError;
 
-      if (data.session?.user) {
-        const accountRole = await upsertRoleProfile(data.session.user.id, profile);
-        navigate({ to: getDashboardPath(accountRole) });
-        return;
+      let userId = data.session?.user?.id ?? data.user?.id;
+
+      if (!data.session) {
+        const { data: signInData, error: signInError } =
+          await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) throw signInError;
+        userId = signInData.user?.id ?? userId;
       }
 
-      setMessage(
-        "Check your email to confirm your account, then sign in here to open your dashboard.",
-      );
-      setMode("signin");
+      if (!userId) {
+        throw new Error("Could not create your account. Please try again.");
+      }
+
+      const accountRole = await upsertRoleProfile(userId, profile);
+      navigate({ to: getDashboardPath(accountRole) });
+      return;
     } catch (caught) {
       setError(
         caught instanceof Error ? caught.message : "Something went wrong. Please try again.",
