@@ -59,7 +59,10 @@ function AuthPage() {
     const user = data.session?.user;
     if (!user) return;
     const pendingRole = await completePendingSignup(user.id, user.email);
-    const accountRole = pendingRole ?? (await getCurrentRole());
+    const metadataRole = pendingRole
+      ? null
+      : await ensureProfileFromUserMetadata(user.id, user.user_metadata ?? {});
+    const accountRole = pendingRole ?? metadataRole ?? (await getCurrentRole());
     if (!accountRole) {
       setError(
         "This account is missing a role. Please sign up again as a Brand account or contact Styly for team access.",
