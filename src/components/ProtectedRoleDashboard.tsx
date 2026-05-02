@@ -13,6 +13,7 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
+  TrendingUp,
   UserPlus,
 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
