@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowRight,
   Bell,
@@ -14,7 +13,6 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
-  TrendingUp,
   UserPlus,
 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
@@ -27,13 +25,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  completePendingSignup,
-  ensureProfileFromUserMetadata,
-  getCurrentRole,
   getDashboardPath,
+  getSession,
+  signOut as clearAuthSession,
   type AppRole,
 } from "@/lib/auth-roles";
-import { sendStylyMemberInvite } from "@/server/team-invites.functions";
 
 type Props = {
   role: AppRole;
@@ -154,7 +150,6 @@ const roleContent = {
 
 export function ProtectedRoleDashboard({ role }: Props) {
   const navigate = useNavigate();
-  const inviteStylyMember = useServerFn(sendStylyMemberInvite);
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
@@ -172,45 +167,21 @@ export function ProtectedRoleDashboard({ role }: Props) {
   const Icon = content.Icon;
 
   useEffect(() => {
-    let mounted = true;
-
-    async function checkAccess() {
-      const { data } = await supabase.auth.getSession();
-      const user = data.session?.user;
-
-      if (!user) {
-        navigate({ to: "/auth" });
-        return;
-      }
-
-      const pendingRole = await completePendingSignup(user.id, user.email);
-      const metadataRole = await ensureProfileFromUserMetadata(user.id, user.user_metadata ?? {});
-      const currentRole = pendingRole ?? metadataRole ?? (await getCurrentRole());
-
-      if (!currentRole) {
-        navigate({ to: "/auth" });
-        return;
-      }
-
-      if (currentRole !== role) {
-        navigate({ to: getDashboardPath(currentRole) });
-        return;
-      }
-
-      if (mounted) {
-        setAuthorized(true);
-        setLoading(false);
-      }
+    const session = getSession();
+    if (!session) {
+      navigate({ to: "/auth" });
+      return;
     }
-
-    checkAccess().catch(() => navigate({ to: "/auth" }));
-    return () => {
-      mounted = false;
-    };
+    if (session.role !== role) {
+      navigate({ to: getDashboardPath(session.role) });
+      return;
+    }
+    setAuthorized(true);
+    setLoading(false);
   }, [navigate, role]);
 
-  async function signOut() {
-    await supabase.auth.signOut();
+  function signOut() {
+    clearAuthSession();
     navigate({ to: "/auth" });
   }
 
@@ -221,12 +192,32 @@ export function ProtectedRoleDashboard({ role }: Props) {
     setInviteError("");
 
     try {
-      const { data } = await supabase.auth.getSession();
-      const accessToken = data.session?.access_token;
-      if (!accessToken) throw new Error("Please sign in again before sending an invite.");
+      // Generate a temporary password for the invited member; they'll need to be told it.
+      const tempPassword = Math.random().toString(36).slice(2, 10) + "A1!";
+      const encoded = new TextEncoder().encode(tempPassword);
+      const buffer = await crypto.subtle.digest("SHA-256", encoded);
+      const password_hash = Array.from(new Uint8Array(buffer))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
 
-      const result = await inviteStylyMember({ data: { ...inviteForm, accessToken } });
-      setInviteMessage(result.message);
+      const { error } = await supabase.from("app_users").insert({
+        email: inviteForm.email.trim().toLowerCase(),
+        password_hash,
+        role: "styly_team",
+        full_name: inviteForm.fullName.trim(),
+        department: inviteForm.department.trim() || "Operations",
+        position: inviteForm.position.trim() || "Styly team member",
+        phone: inviteForm.phone.trim() || null,
+      });
+
+      if (error) {
+        if (error.code === "23505") throw new Error("An account with this email already exists.");
+        throw error;
+      }
+
+      setInviteMessage(
+        `Invite created. Temporary password for ${inviteForm.email}: ${tempPassword}`,
+      );
       setInviteForm({ email: "", fullName: "", department: "", position: "", phone: "", note: "" });
     } catch (caught) {
       setInviteError(
