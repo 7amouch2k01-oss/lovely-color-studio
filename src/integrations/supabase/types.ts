@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_users: {
+        Row: {
+          brand_name: string | null
+          created_at: string
+          department: string | null
+          description: string | null
+          email: string
+          full_name: string
+          id: string
+          industry: string | null
+          password_hash: string
+          phone: string | null
+          position: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          brand_name?: string | null
+          created_at?: string
+          department?: string | null
+          description?: string | null
+          email: string
+          full_name: string
+          id?: string
+          industry?: string | null
+          password_hash: string
+          phone?: string | null
+          position?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          brand_name?: string | null
+          created_at?: string
+          department?: string | null
+          description?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          industry?: string | null
+          password_hash?: string
+          phone?: string | null
+          position?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       brand_profiles: {
         Row: {
           brand_name: string

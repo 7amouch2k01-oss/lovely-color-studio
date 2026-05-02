@@ -1,3 +1,5 @@
+// Custom frontend + database auth (no Supabase Auth).
+// Users are stored in `public.app_users`; the active session is stored in localStorage.
 import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "brand" | "styly_team";
@@ -14,130 +16,130 @@ export type SignupProfile = {
   phone?: string;
 };
 
-const pendingSignupKey = "styly_pending_signup_profile";
+export type SessionUser = {
+  id: string;
+  email: string;
+  role: AppRole;
+  fullName: string;
+};
 
-function getSelfServiceRole(role: AppRole): AppRole {
-  return role;
-}
+const SESSION_KEY = "styly_session_user";
+
+// ---------- helpers ----------
 
 export function getDashboardPath(role: AppRole) {
   return role === "brand" ? "/brand-dashboard" : "/styly-team-dashboard";
 }
 
-export function savePendingSignup(profile: SignupProfile & { email: string }) {
-  if (typeof window === "undefined") return;
-  const selfServiceRole = getSelfServiceRole(profile.role);
-  if (!selfServiceRole) return;
-
-  window.localStorage.setItem(
-    pendingSignupKey,
-    JSON.stringify({ ...profile, role: selfServiceRole }),
-  );
+async function hashPassword(password: string): Promise<string> {
+  const encoded = new TextEncoder().encode(password);
+  const buffer = await crypto.subtle.digest("SHA-256", encoded);
+  return Array.from(new Uint8Array(buffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-export async function getCurrentRole(): Promise<AppRole | null> {
-  const { data: sessionData } = await supabase.auth.getSession();
-  if (!sessionData.session?.user) return null;
-
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", sessionData.session.user.id);
-
-  if (error) throw error;
-  const roles = data?.map((item) => item.role) ?? [];
-  if (roles.includes("styly_team")) return "styly_team";
-  if (roles.includes("brand")) return "brand";
-  return null;
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
 }
 
-export async function upsertRoleProfile(userId: string, profile: SignupProfile): Promise<AppRole> {
-  const { data: existingRoles, error: roleReadError } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId);
+// ---------- session ----------
 
-  if (roleReadError) throw roleReadError;
-
-  const roleList = existingRoles?.map((item) => item.role) ?? [];
-  const accountRole = roleList.includes("styly_team")
-    ? "styly_team"
-    : (roleList[0] ?? profile.role);
-
-  if (roleList.length === 0) {
-    const { error: roleError } = await supabase.from("user_roles").insert({
-      user_id: userId,
-      role: profile.role,
-    });
-    if (roleError) throw roleError;
-  }
-
-  if (accountRole === "brand") {
-    const { error } = await supabase.from("brand_profiles").upsert(
-      {
-        user_id: userId,
-        brand_name: profile.brandName?.trim() || profile.fullName.trim(),
-        contact_name: profile.fullName.trim(),
-        website: profile.website?.trim() || null,
-        industry: profile.industry?.trim() || null,
-        description: profile.description?.trim() || null,
-      },
-      { onConflict: "user_id" },
-    );
-    if (error) throw error;
-    return accountRole;
-  }
-
-  const { error } = await supabase.from("team_member_profiles").upsert(
-    {
-      user_id: userId,
-      full_name: profile.fullName.trim(),
-      department: profile.department?.trim() || "Operations",
-      position: profile.position?.trim() || "Styly team member",
-      phone: profile.phone?.trim() || null,
-    },
-    { onConflict: "user_id" },
-  );
-  if (error) throw error;
-  return accountRole;
-}
-
-export async function completePendingSignup(userId: string, email?: string | null) {
+export function getSession(): SessionUser | null {
   if (typeof window === "undefined") return null;
-
-  const raw = window.localStorage.getItem(pendingSignupKey);
+  const raw = window.localStorage.getItem(SESSION_KEY);
   if (!raw) return null;
-
-  let pending: SignupProfile & { email: string };
   try {
-    pending = JSON.parse(raw) as SignupProfile & { email: string };
+    return JSON.parse(raw) as SessionUser;
   } catch {
-    window.localStorage.removeItem(pendingSignupKey);
+    window.localStorage.removeItem(SESSION_KEY);
     return null;
   }
-
-  if (email && pending.email.toLowerCase() !== email.toLowerCase()) return null;
-  const accountRole = await upsertRoleProfile(userId, pending);
-  window.localStorage.removeItem(pendingSignupKey);
-  return accountRole;
 }
 
-export async function ensureProfileFromUserMetadata(
-  userId: string,
-  metadata: Record<string, unknown>,
-) {
-  const role = metadata.role === "brand" || metadata.role === "styly_team" ? metadata.role : null;
-  if (!role) return null;
+function setSession(user: SessionUser) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+}
 
-  return upsertRoleProfile(userId, {
-    role,
-    fullName: String(metadata.fullName ?? metadata.contactName ?? "Styly user"),
-    brandName: typeof metadata.brandName === "string" ? metadata.brandName : undefined,
-    website: typeof metadata.website === "string" ? metadata.website : undefined,
-    industry: typeof metadata.industry === "string" ? metadata.industry : undefined,
-    description: typeof metadata.description === "string" ? metadata.description : undefined,
-    department: typeof metadata.department === "string" ? metadata.department : undefined,
-    position: typeof metadata.position === "string" ? metadata.position : undefined,
-    phone: typeof metadata.phone === "string" ? metadata.phone : undefined,
-  });
+export function clearSession() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(SESSION_KEY);
+}
+
+// ---------- sign up / sign in ----------
+
+export async function signUp(
+  email: string,
+  password: string,
+  profile: SignupProfile,
+): Promise<SessionUser> {
+  const cleanEmail = normalizeEmail(email);
+  if (!cleanEmail) throw new Error("Email is required.");
+  if (password.length < 6) throw new Error("Password must be at least 6 characters.");
+
+  const password_hash = await hashPassword(password);
+
+  const { data, error } = await supabase
+    .from("app_users")
+    .insert({
+      email: cleanEmail,
+      password_hash,
+      role: profile.role,
+      full_name: profile.fullName.trim() || "Styly user",
+      brand_name: profile.brandName?.trim() || null,
+      industry: profile.industry?.trim() || null,
+      website: profile.website?.trim() || null,
+      description: profile.description?.trim() || null,
+      department: profile.department?.trim() || null,
+      position: profile.position?.trim() || null,
+      phone: profile.phone?.trim() || null,
+    })
+    .select("id, email, role, full_name")
+    .single();
+
+  if (error) {
+    if (error.code === "23505") {
+      throw new Error("An account with this email already exists. Please sign in instead.");
+    }
+    throw error;
+  }
+
+  const session: SessionUser = {
+    id: data.id,
+    email: data.email,
+    role: data.role as AppRole,
+    fullName: data.full_name,
+  };
+  setSession(session);
+  return session;
+}
+
+export async function signIn(email: string, password: string): Promise<SessionUser> {
+  const cleanEmail = normalizeEmail(email);
+  const password_hash = await hashPassword(password);
+
+  const { data, error } = await supabase
+    .from("app_users")
+    .select("id, email, role, full_name, password_hash")
+    .eq("email", cleanEmail)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data || data.password_hash !== password_hash) {
+    throw new Error("Invalid email or password.");
+  }
+
+  const session: SessionUser = {
+    id: data.id,
+    email: data.email,
+    role: data.role as AppRole,
+    fullName: data.full_name,
+  };
+  setSession(session);
+  return session;
+}
+
+export function signOut() {
+  clearSession();
 }
