@@ -6,15 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { lovable } from "@/integrations/lovable";
-import { supabase } from "@/integrations/supabase/client";
 import {
-  completePendingSignup,
-  ensureProfileFromUserMetadata,
-  getCurrentRole,
   getDashboardPath,
-  savePendingSignup,
-  upsertRoleProfile,
+  getSession,
+  signIn,
+  signUp,
   type AppRole,
 } from "@/lib/auth-roles";
 import { cn } from "@/lib/utils";
@@ -47,80 +43,30 @@ function AuthPage() {
   const [brandName, setBrandName] = useState("");
   const [industry, setIndustry] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    redirectToRole().catch(() => undefined);
-  }, []);
-
-  async function redirectToRole() {
-    const { data } = await supabase.auth.getSession();
-    const user = data.session?.user;
-    if (!user) return;
-    const pendingRole = await completePendingSignup(user.id, user.email);
-    const metadataRole = pendingRole
-      ? null
-      : await ensureProfileFromUserMetadata(user.id, user.user_metadata ?? {});
-    const accountRole = pendingRole ?? metadataRole ?? (await getCurrentRole());
-    if (!accountRole) {
-      setError(
-        "This account is missing a role. Please sign up again as a Brand account or contact Styly for team access.",
-      );
-      return;
-    }
-    navigate({ to: getDashboardPath(accountRole) });
-  }
+    const session = getSession();
+    if (session) navigate({ to: getDashboardPath(session.role) });
+  }, [navigate]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
     setError("");
-    setMessage("");
 
     try {
-      if (mode === "signin") {
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-        if (signInError) throw signInError;
-        await redirectToRole();
-        return;
-      }
-
-      const profile = {
-        role: selectedRole,
-        fullName,
-        brandName: selectedRole === "brand" ? brandName : undefined,
-        industry,
-        department: selectedRole === "styly_team" ? industry : undefined,
-      };
-
-      savePendingSignup({ ...profile, email });
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth`,
-          data: profile,
-        },
-      });
-      if (signUpError) throw signUpError;
-
-      let userId = data.session?.user?.id ?? data.user?.id;
-
-      if (!data.session) {
-        const { data: signInData, error: signInError } =
-          await supabase.auth.signInWithPassword({ email, password });
-        if (signInError) throw signInError;
-        userId = signInData.user?.id ?? userId;
-      }
-
-      if (!userId) {
-        throw new Error("Could not create your account. Please try again.");
-      }
-
-      const accountRole = await upsertRoleProfile(userId, profile);
-      navigate({ to: getDashboardPath(accountRole) });
-      return;
+      const session =
+        mode === "signin"
+          ? await signIn(email, password)
+          : await signUp(email, password, {
+              role: selectedRole,
+              fullName,
+              brandName: selectedRole === "brand" ? brandName : undefined,
+              industry: selectedRole === "brand" ? industry : undefined,
+              department: selectedRole === "styly_team" ? industry : undefined,
+            });
+      navigate({ to: getDashboardPath(session.role) });
     } catch (caught) {
       setError(
         caught instanceof Error ? caught.message : "Something went wrong. Please try again.",
@@ -128,22 +74,6 @@ function AuthPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  async function handleGoogle() {
-    setError("");
-    savePendingSignup({
-      email,
-      role: selectedRole,
-      fullName: fullName || "Styly user",
-      brandName: selectedRole === "brand" ? brandName : undefined,
-      industry,
-      department: selectedRole === "styly_team" ? industry : undefined,
-    });
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth`,
-    });
-    if (result.error) setError(result.error.message);
   }
 
   return (
@@ -184,7 +114,10 @@ function AuthPage() {
                     "rounded-xl px-4 py-2 text-sm font-medium transition",
                     mode === item ? "bg-card text-foreground shadow-sm" : "text-muted-foreground",
                   )}
-                  onClick={() => setMode(item)}
+                  onClick={() => {
+                    setMode(item);
+                    setError("");
+                  }}
                 >
                   {item === "signup" ? "Sign up" : "Sign in"}
                 </button>
@@ -288,11 +221,6 @@ function AuthPage() {
                   {error}
                 </p>
               )}
-              {message && (
-                <p className="rounded-2xl bg-brand-soft px-4 py-3 text-sm text-brand-soft-foreground">
-                  {message}
-                </p>
-              )}
 
               <Button
                 type="submit"
@@ -301,14 +229,6 @@ function AuthPage() {
               >
                 {loading && <Loader2 className="animate-spin" />}
                 {mode === "signup" ? "Create account" : "Sign in"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full rounded-full"
-                onClick={handleGoogle}
-              >
-                Continue with Google
               </Button>
             </form>
           </CardContent>
