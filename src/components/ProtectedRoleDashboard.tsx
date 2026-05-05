@@ -385,6 +385,63 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </div>
           </section>
 
+          <section id="brands" className="scroll-mt-24">
+            <div className="mb-4 flex items-end justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-medium">Brands on Styly</h2>
+                <p className="text-sm text-muted-foreground">
+                  Fashion labels currently selling through the Styly online store.
+                </p>
+              </div>
+              <Badge variant="outline" className="rounded-full">
+                {brandCatalog.length} active
+              </Badge>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {brandCatalog.map((brand) => (
+                <Card key={brand.name} className="rounded-3xl shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between gap-3 text-base">
+                      <span className="flex items-center gap-2">
+                        <span className="flex size-9 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-sm font-semibold text-primary-foreground">
+                          {brand.name.charAt(0)}
+                        </span>
+                        {brand.name}
+                      </span>
+                      <Badge variant="secondary" className="rounded-full text-xs">
+                        {brand.priceRange}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                      {brand.origin}
+                    </p>
+                    <p className="text-sm leading-6 text-muted-foreground">{brand.description}</p>
+                    <div className="grid grid-cols-2 gap-2 pt-2">
+                      <div className="rounded-2xl border bg-background p-3">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Products</p>
+                        <p className="text-base font-medium">{brand.products}</p>
+                      </div>
+                      <div className="rounded-2xl border bg-background p-3">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">In stock</p>
+                        <p className="text-base font-medium">{brand.inStock}</p>
+                      </div>
+                      <div className="col-span-2 rounded-2xl border bg-background p-3">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Category</p>
+                        <p className="text-sm">{brand.category}</p>
+                      </div>
+                      <div className="col-span-2 rounded-2xl border bg-background p-3">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Best seller</p>
+                        <p className="text-sm">{brand.bestSeller}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+
           <section id="workspace" className="scroll-mt-24">
             <h2 className="mb-4 text-xl font-medium">Workspace</h2>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
