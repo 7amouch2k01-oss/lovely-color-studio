@@ -6,11 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  getDashboardPath,
-  getSession,
-  signIn,
-} from "@/lib/auth-roles";
+import { getDashboardPath, getSession, signIn } from "@/lib/auth-roles";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -18,12 +14,12 @@ export const Route = createFileRoute("/auth")({
       { title: "Sign in to Styly" },
       {
         name: "description",
-        content: "Create or access a Brand or Styly team member dashboard account.",
+        content: "Admin access for Styly team and brand dashboards.",
       },
       { property: "og:title", content: "Sign in to Styly" },
       {
         property: "og:description",
-        content: "Role-based access for Brand and Styly team dashboards.",
+        content: "Admin access for Styly team and brand dashboards.",
       },
     ],
   }),
@@ -32,13 +28,8 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [selectedRole, setSelectedRole] = useState<AppRole>("brand");
-  const [brandName, setBrandName] = useState("");
-  const [industry, setIndustry] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -53,16 +44,7 @@ function AuthPage() {
     setError("");
 
     try {
-      const session =
-        mode === "signin"
-          ? await signIn(email, password)
-          : await signUp(email, password, {
-              role: selectedRole,
-              fullName,
-              brandName: selectedRole === "brand" ? brandName : undefined,
-              industry: selectedRole === "brand" ? industry : undefined,
-              department: selectedRole === "styly_team" ? industry : undefined,
-            });
+      const session = await signIn(email, password);
       navigate({ to: getDashboardPath(session.role) });
     } catch (caught) {
       setError(
@@ -82,104 +64,26 @@ function AuthPage() {
           </span>
           <span className="text-2xl font-normal tracking-tight">styly</span>
         </Link>
-        <Button asChild variant="outline" className="rounded-full">
-          <Link to="/dashboard">Demo dashboard</Link>
-        </Button>
       </div>
 
       <section className="mx-auto grid max-w-6xl gap-8 py-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         <div>
           <p className="inline-flex rounded-full bg-brand-soft px-4 py-2 text-sm font-medium text-brand-soft-foreground">
-            Role-based access
+            Admin access
           </p>
           <h1 className="mt-6 max-w-2xl text-5xl font-normal tracking-tight sm:text-6xl">
             Access your Styly workspace
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-muted-foreground">
-            Brands get campaign tools. Styly team members get operations controls after login.
+            Sign in to manage brands, track finances, and control store operations.
           </p>
         </div>
 
         <Card className="rounded-3xl shadow-xl shadow-primary/10">
           <CardContent className="p-6 sm:p-8">
-            <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-muted p-1">
-              {(["signup", "signin"] as const).map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  className={cn(
-                    "rounded-xl px-4 py-2 text-sm font-medium transition",
-                    mode === item ? "bg-card text-foreground shadow-sm" : "text-muted-foreground",
-                  )}
-                  onClick={() => {
-                    setMode(item);
-                    setError("");
-                  }}
-                >
-                  {item === "signup" ? "Sign up" : "Sign in"}
-                </button>
-              ))}
-            </div>
+            <h2 className="mb-6 text-center text-xl font-medium">Sign in</h2>
 
             <form className="space-y-5" onSubmit={handleSubmit}>
-              {mode === "signup" && (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <RoleCard
-                    active={selectedRole === "brand"}
-                    icon={Building2}
-                    title="Brand account"
-                    onClick={() => setSelectedRole("brand")}
-                  />
-                  <RoleCard
-                    active={selectedRole === "styly_team"}
-                    icon={ShieldCheck}
-                    title="Styly team account"
-                    onClick={() => setSelectedRole("styly_team")}
-                  />
-                </div>
-              )}
-
-              {mode === "signup" && (
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Contact name</Label>
-                  <Input
-                    id="fullName"
-                    value={fullName}
-                    onChange={(event) => setFullName(event.target.value)}
-                    required
-                    placeholder="Your name"
-                  />
-                </div>
-              )}
-
-              {mode === "signup" && (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {selectedRole === "brand" && (
-                    <div className="space-y-2">
-                      <Label htmlFor="brandName">Brand name</Label>
-                      <Input
-                        id="brandName"
-                        value={brandName}
-                        onChange={(event) => setBrandName(event.target.value)}
-                        required
-                        placeholder="Brand studio"
-                      />
-                    </div>
-                  )}
-                  <div className="space-y-2">
-                    <Label htmlFor="industry">
-                      {selectedRole === "brand" ? "Industry" : "Department"}
-                    </Label>
-                    <Input
-                      id="industry"
-                      value={industry}
-                      onChange={(event) => setIndustry(event.target.value)}
-                      placeholder={selectedRole === "brand" ? "Fashion retail" : "Operations"}
-                    />
-                  </div>
-                </div>
-              )}
-
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -225,40 +129,12 @@ function AuthPage() {
                 className="w-full rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground shadow-lg shadow-primary/20"
               >
                 {loading && <Loader2 className="animate-spin" />}
-                {mode === "signup" ? "Create account" : "Sign in"}
+                Sign in
               </Button>
             </form>
           </CardContent>
         </Card>
       </section>
     </main>
-  );
-}
-
-function RoleCard({
-  active,
-  icon: Icon,
-  title,
-  onClick,
-}: {
-  active: boolean;
-  icon: typeof Building2;
-  title: string;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "rounded-2xl border p-4 text-left transition",
-        active
-          ? "border-primary bg-brand-soft text-brand-soft-foreground"
-          : "bg-card hover:bg-accent",
-      )}
-    >
-      <Icon className="mb-3 size-5" />
-      <span className="text-sm font-medium">{title}</span>
-    </button>
   );
 }
