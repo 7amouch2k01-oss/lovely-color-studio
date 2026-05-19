@@ -63,14 +63,8 @@ function Index() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg" className="rounded-full bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] px-7 text-primary-foreground shadow-lg shadow-primary/20">
                 <Link to="/auth">
-                  Start your account
+                  Sign in
                   <ArrowRight />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full px-7">
-                <Link to="/dashboard">
-                  <Download />
-                  View app analytics
                 </Link>
               </Button>
             </div>
