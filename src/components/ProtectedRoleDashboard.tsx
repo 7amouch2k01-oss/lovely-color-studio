@@ -261,22 +261,13 @@ export function ProtectedRoleDashboard({ role }: Props) {
     setLoading(false);
   }, [navigate, role]);
 
-  useEffect(() => {
-    if (!authorized) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActiveSection(e.target.id);
-        });
-      },
-      { rootMargin: "-40% 0px -55% 0px" },
-    );
-    navItems.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, [authorized]);
+  const [financePeriod, setFinancePeriod] = useState<FinancePeriod>("month");
+  const finance = financeData[financePeriod];
+  const net = finance.in - finance.out;
+  const maxSeries = useMemo(
+    () => Math.max(...finance.series.flatMap((s) => [s.in, s.out])),
+    [finance],
+  );
 
   const visibleNav = navItems.filter((n) => n.id !== "team" || role === "styly_team");
 
@@ -285,10 +276,9 @@ export function ProtectedRoleDashboard({ role }: Props) {
     navigate({ to: "/auth" });
   }
 
-  function scrollTo(id: string) {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  function selectSection(id: string) {
     setActiveSection(id);
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function submitInvite(event: FormEvent) {
