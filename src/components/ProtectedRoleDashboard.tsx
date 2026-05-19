@@ -475,6 +475,110 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </div>
           </section>
 
+          <section id="finance" className={activeSection === "finance" ? "" : "hidden"}>
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-medium">Finance</h2>
+                <p className="text-sm text-muted-foreground">
+                  Money coming in and going out of your Styly store.
+                </p>
+              </div>
+              <div className="inline-flex rounded-full border bg-card p-1">
+                {(["day", "month", "year"] as FinancePeriod[]).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setFinancePeriod(p)}
+                    className={cn(
+                      "rounded-full px-4 py-1.5 text-sm font-medium capitalize transition-colors",
+                      financePeriod === p
+                        ? "bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground shadow"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              <Card className="rounded-3xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base text-muted-foreground">
+                    <ArrowDownLeft className="size-5 text-emerald-500" /> Money in
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-normal text-emerald-500">{formatTND(finance.in)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Revenue this {financePeriod}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="rounded-3xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base text-muted-foreground">
+                    <ArrowUpRight className="size-5 text-rose-500" /> Money out
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-normal text-rose-500">{formatTND(finance.out)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Expenses this {financePeriod}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="rounded-3xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base text-muted-foreground">
+                    <Wallet className="size-5 text-primary" /> Net balance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className={cn("text-3xl font-normal", net >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                    {formatTND(net)}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {net >= 0 ? "Positive cash flow" : "Negative cash flow"}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="mt-6 rounded-3xl shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-base">Cash flow breakdown</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-5">
+                  {finance.series.map((row) => (
+                    <div key={row.label} className="space-y-2">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">{row.label}</span>
+                        <span>
+                          <span className="text-emerald-500">+{formatTND(row.in)}</span>
+                          <span className="mx-2">·</span>
+                          <span className="text-rose-500">-{formatTND(row.out)}</span>
+                        </span>
+                      </div>
+                      <div className="flex h-2 gap-1">
+                        <div
+                          className="h-full rounded-full bg-emerald-500"
+                          style={{ width: `${(row.in / maxSeries) * 50}%` }}
+                        />
+                        <div
+                          className="h-full rounded-full bg-rose-500"
+                          style={{ width: `${(row.out / maxSeries) * 50}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+
           <section id="workspace" className={activeSection === "workspace" ? "" : "hidden"}>
             <h2 className="mb-4 text-xl font-medium">Workspace</h2>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
