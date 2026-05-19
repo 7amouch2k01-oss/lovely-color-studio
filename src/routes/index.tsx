@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ChartNoAxesColumnIncreasing, Download, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { ArrowRight, ChartNoAxesColumnIncreasing, ShieldCheck, Sparkles, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
