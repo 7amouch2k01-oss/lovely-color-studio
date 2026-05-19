@@ -380,7 +380,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
         </aside>
 
         <main className="min-w-0 flex-1 space-y-6">
-          <section id="overview" className="scroll-mt-24">
+          <section id="overview" className={activeSection === "overview" ? "" : "hidden"}>
             <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr] lg:items-stretch">
               <div className="overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_38%),linear-gradient(135deg,var(--card),var(--brand-soft))] p-6 shadow-sm sm:p-8">
                 <Badge className="rounded-full bg-brand-soft text-brand-soft-foreground hover:bg-brand-soft">
@@ -418,7 +418,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </div>
           </section>
 
-          <section id="brands" className="scroll-mt-24">
+          <section id="brands" className={activeSection === "brands" ? "" : "hidden"}>
             <div className="mb-4 flex items-end justify-between gap-4">
               <div>
                 <h2 className="text-xl font-medium">Brands on Styly</h2>
@@ -475,7 +475,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </div>
           </section>
 
-          <section id="workspace" className="scroll-mt-24">
+          <section id="workspace" className={activeSection === "workspace" ? "" : "hidden"}>
             <h2 className="mb-4 text-xl font-medium">Workspace</h2>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {content.cards.map((card) => (
@@ -494,7 +494,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </div>
           </section>
 
-          <section id="priority" className="scroll-mt-24">
+          <section id="priority" className={activeSection === "priority" ? "" : "hidden"}>
             <Card className="rounded-3xl shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -517,7 +517,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </Card>
           </section>
 
-          <section id="next-steps" className="scroll-mt-24">
+          <section id="next-steps" className={activeSection === "next-steps" ? "" : "hidden"}>
             <Card className="rounded-3xl shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -540,7 +540,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
           </section>
 
           {role === "styly_team" && (
-            <section id="team" className="scroll-mt-24">
+            <section id="team" className={activeSection === "team" ? "" : "hidden"}>
               <Card className="rounded-3xl shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -604,7 +604,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </section>
           )}
 
-          <section id="settings" className="scroll-mt-24">
+          <section id="settings" className={activeSection === "settings" ? "" : "hidden"}>
             <Card className="rounded-3xl shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
