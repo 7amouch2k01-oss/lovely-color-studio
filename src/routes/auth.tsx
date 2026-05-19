@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Building2, Loader2, Lock, Mail, ShieldCheck, Sparkles } from "lucide-react";
+import { Loader2, Lock, Mail, Sparkles } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,7 @@ import {
   getDashboardPath,
   getSession,
   signIn,
-  signUp,
-  type AppRole,
 } from "@/lib/auth-roles";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
