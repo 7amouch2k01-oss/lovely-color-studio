@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
+  ArrowDownLeft,
   ArrowRight,
+  ArrowUpRight,
   BarChart3,
   Bell,
-  Building2,
   CalendarDays,
   CheckCircle2,
   Clock3,
@@ -21,8 +22,9 @@ import {
   TrendingUp,
   UserPlus,
   Users,
+  Wallet,
 } from "lucide-react";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
