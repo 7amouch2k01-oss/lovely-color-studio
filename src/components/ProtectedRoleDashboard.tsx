@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
+  ArrowDownLeft,
   ArrowRight,
+  ArrowUpRight,
   BarChart3,
   Bell,
-  Building2,
   CalendarDays,
   CheckCircle2,
   Clock3,
@@ -21,8 +22,9 @@ import {
   TrendingUp,
   UserPlus,
   Users,
+  Wallet,
 } from "lucide-react";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
@@ -189,12 +191,53 @@ const roleContent = {
 const navItems = [
   { id: "overview", label: "Overview", Icon: LayoutDashboard },
   { id: "brands", label: "Brands", Icon: ShoppingBag },
+  { id: "finance", label: "Finance", Icon: Wallet },
   { id: "workspace", label: "Workspace", Icon: BarChart3 },
   { id: "priority", label: "Priority work", Icon: Megaphone },
   { id: "next-steps", label: "Next steps", Icon: CalendarDays },
   { id: "team", label: "Team", Icon: Users },
   { id: "settings", label: "Settings", Icon: Settings },
 ];
+
+type FinancePeriod = "day" | "month" | "year";
+
+const financeData: Record<FinancePeriod, { in: number; out: number; series: { label: string; in: number; out: number }[] }> = {
+  day: {
+    in: 4820,
+    out: 1980,
+    series: [
+      { label: "08:00", in: 320, out: 120 },
+      { label: "11:00", in: 980, out: 410 },
+      { label: "14:00", in: 1420, out: 560 },
+      { label: "17:00", in: 1240, out: 480 },
+      { label: "20:00", in: 860, out: 410 },
+    ],
+  },
+  month: {
+    in: 128400,
+    out: 54200,
+    series: [
+      { label: "W1", in: 28400, out: 11200 },
+      { label: "W2", in: 31200, out: 13800 },
+      { label: "W3", in: 33600, out: 14100 },
+      { label: "W4", in: 35200, out: 15100 },
+    ],
+  },
+  year: {
+    in: 1480000,
+    out: 612000,
+    series: [
+      { label: "Q1", in: 312000, out: 140000 },
+      { label: "Q2", in: 358000, out: 152000 },
+      { label: "Q3", in: 384000, out: 158000 },
+      { label: "Q4", in: 426000, out: 162000 },
+    ],
+  },
+};
+
+function formatTND(n: number) {
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n) + " TND";
+}
 
 export function ProtectedRoleDashboard({ role }: Props) {
   const navigate = useNavigate();
@@ -218,22 +261,13 @@ export function ProtectedRoleDashboard({ role }: Props) {
     setLoading(false);
   }, [navigate, role]);
 
-  useEffect(() => {
-    if (!authorized) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActiveSection(e.target.id);
-        });
-      },
-      { rootMargin: "-40% 0px -55% 0px" },
-    );
-    navItems.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, [authorized]);
+  const [financePeriod, setFinancePeriod] = useState<FinancePeriod>("month");
+  const finance = financeData[financePeriod];
+  const net = finance.in - finance.out;
+  const maxSeries = useMemo(
+    () => Math.max(...finance.series.flatMap((s) => [s.in, s.out])),
+    [finance],
+  );
 
   const visibleNav = navItems.filter((n) => n.id !== "team" || role === "styly_team");
 
@@ -242,10 +276,9 @@ export function ProtectedRoleDashboard({ role }: Props) {
     navigate({ to: "/auth" });
   }
 
-  function scrollTo(id: string) {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  function selectSection(id: string) {
     setActiveSection(id);
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function submitInvite(event: FormEvent) {
@@ -328,7 +361,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
                   <li key={id}>
                     <button
                       type="button"
-                      onClick={() => scrollTo(id)}
+                      onClick={() => selectSection(id)}
                       className={cn(
                         "flex w-full items-center gap-3 rounded-2xl px-3 py-2 text-sm font-medium transition-colors",
                         isActive
@@ -347,7 +380,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
         </aside>
 
         <main className="min-w-0 flex-1 space-y-6">
-          <section id="overview" className="scroll-mt-24">
+          <section id="overview" className={activeSection === "overview" ? "" : "hidden"}>
             <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr] lg:items-stretch">
               <div className="overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_top_right,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_38%),linear-gradient(135deg,var(--card),var(--brand-soft))] p-6 shadow-sm sm:p-8">
                 <Badge className="rounded-full bg-brand-soft text-brand-soft-foreground hover:bg-brand-soft">
@@ -385,7 +418,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </div>
           </section>
 
-          <section id="brands" className="scroll-mt-24">
+          <section id="brands" className={activeSection === "brands" ? "" : "hidden"}>
             <div className="mb-4 flex items-end justify-between gap-4">
               <div>
                 <h2 className="text-xl font-medium">Brands on Styly</h2>
@@ -442,7 +475,111 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </div>
           </section>
 
-          <section id="workspace" className="scroll-mt-24">
+          <section id="finance" className={activeSection === "finance" ? "" : "hidden"}>
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-medium">Finance</h2>
+                <p className="text-sm text-muted-foreground">
+                  Money coming in and going out of your Styly store.
+                </p>
+              </div>
+              <div className="inline-flex rounded-full border bg-card p-1">
+                {(["day", "month", "year"] as FinancePeriod[]).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setFinancePeriod(p)}
+                    className={cn(
+                      "rounded-full px-4 py-1.5 text-sm font-medium capitalize transition-colors",
+                      financePeriod === p
+                        ? "bg-[linear-gradient(135deg,var(--primary),var(--primary-glow))] text-primary-foreground shadow"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              <Card className="rounded-3xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base text-muted-foreground">
+                    <ArrowDownLeft className="size-5 text-emerald-500" /> Money in
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-normal text-emerald-500">{formatTND(finance.in)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Revenue this {financePeriod}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="rounded-3xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base text-muted-foreground">
+                    <ArrowUpRight className="size-5 text-rose-500" /> Money out
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-normal text-rose-500">{formatTND(finance.out)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Expenses this {financePeriod}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="rounded-3xl shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base text-muted-foreground">
+                    <Wallet className="size-5 text-primary" /> Net balance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className={cn("text-3xl font-normal", net >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                    {formatTND(net)}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {net >= 0 ? "Positive cash flow" : "Negative cash flow"}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="mt-6 rounded-3xl shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-base">Cash flow breakdown</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-5">
+                  {finance.series.map((row) => (
+                    <div key={row.label} className="space-y-2">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">{row.label}</span>
+                        <span>
+                          <span className="text-emerald-500">+{formatTND(row.in)}</span>
+                          <span className="mx-2">·</span>
+                          <span className="text-rose-500">-{formatTND(row.out)}</span>
+                        </span>
+                      </div>
+                      <div className="flex h-2 gap-1">
+                        <div
+                          className="h-full rounded-full bg-emerald-500"
+                          style={{ width: `${(row.in / maxSeries) * 50}%` }}
+                        />
+                        <div
+                          className="h-full rounded-full bg-rose-500"
+                          style={{ width: `${(row.out / maxSeries) * 50}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          <section id="workspace" className={activeSection === "workspace" ? "" : "hidden"}>
             <h2 className="mb-4 text-xl font-medium">Workspace</h2>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {content.cards.map((card) => (
@@ -461,7 +598,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </div>
           </section>
 
-          <section id="priority" className="scroll-mt-24">
+          <section id="priority" className={activeSection === "priority" ? "" : "hidden"}>
             <Card className="rounded-3xl shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -484,7 +621,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </Card>
           </section>
 
-          <section id="next-steps" className="scroll-mt-24">
+          <section id="next-steps" className={activeSection === "next-steps" ? "" : "hidden"}>
             <Card className="rounded-3xl shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -507,7 +644,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
           </section>
 
           {role === "styly_team" && (
-            <section id="team" className="scroll-mt-24">
+            <section id="team" className={activeSection === "team" ? "" : "hidden"}>
               <Card className="rounded-3xl shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -571,7 +708,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
             </section>
           )}
 
-          <section id="settings" className="scroll-mt-24">
+          <section id="settings" className={activeSection === "settings" ? "" : "hidden"}>
             <Card className="rounded-3xl shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
