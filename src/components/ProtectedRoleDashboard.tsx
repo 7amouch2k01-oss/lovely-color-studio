@@ -361,7 +361,7 @@ export function ProtectedRoleDashboard({ role }: Props) {
                   <li key={id}>
                     <button
                       type="button"
-                      onClick={() => scrollTo(id)}
+                      onClick={() => selectSection(id)}
                       className={cn(
                         "flex w-full items-center gap-3 rounded-2xl px-3 py-2 text-sm font-medium transition-colors",
                         isActive
