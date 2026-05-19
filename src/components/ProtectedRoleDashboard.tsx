@@ -191,12 +191,53 @@ const roleContent = {
 const navItems = [
   { id: "overview", label: "Overview", Icon: LayoutDashboard },
   { id: "brands", label: "Brands", Icon: ShoppingBag },
+  { id: "finance", label: "Finance", Icon: Wallet },
   { id: "workspace", label: "Workspace", Icon: BarChart3 },
   { id: "priority", label: "Priority work", Icon: Megaphone },
   { id: "next-steps", label: "Next steps", Icon: CalendarDays },
   { id: "team", label: "Team", Icon: Users },
   { id: "settings", label: "Settings", Icon: Settings },
 ];
+
+type FinancePeriod = "day" | "month" | "year";
+
+const financeData: Record<FinancePeriod, { in: number; out: number; series: { label: string; in: number; out: number }[] }> = {
+  day: {
+    in: 4820,
+    out: 1980,
+    series: [
+      { label: "08:00", in: 320, out: 120 },
+      { label: "11:00", in: 980, out: 410 },
+      { label: "14:00", in: 1420, out: 560 },
+      { label: "17:00", in: 1240, out: 480 },
+      { label: "20:00", in: 860, out: 410 },
+    ],
+  },
+  month: {
+    in: 128400,
+    out: 54200,
+    series: [
+      { label: "W1", in: 28400, out: 11200 },
+      { label: "W2", in: 31200, out: 13800 },
+      { label: "W3", in: 33600, out: 14100 },
+      { label: "W4", in: 35200, out: 15100 },
+    ],
+  },
+  year: {
+    in: 1480000,
+    out: 612000,
+    series: [
+      { label: "Q1", in: 312000, out: 140000 },
+      { label: "Q2", in: 358000, out: 152000 },
+      { label: "Q3", in: 384000, out: 158000 },
+      { label: "Q4", in: 426000, out: 162000 },
+    ],
+  },
+};
+
+function formatTND(n: number) {
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n) + " TND";
+}
 
 export function ProtectedRoleDashboard({ role }: Props) {
   const navigate = useNavigate();
